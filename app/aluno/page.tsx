@@ -1,0 +1,1342 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import FooterVoltar from "@/app/components/FooterVoltar";
+
+export const STATUS_ENCERRADOS = [
+  "encerrada",
+  "finalizada",
+  "ENCERRADA",
+  "FINALIZADA",
+];
+
+export interface Modalidade {
+  id: number;
+  nome: string;
+}
+
+export interface GrupoConfronto {
+  id: number;
+  nome: string;
+}
+
+export interface Equipe {
+  id: number;
+  nome: string;
+  grupo_id: number;
+  modalidades_id: number;
+}
+
+export interface Aluno {
+  id: number;
+  nome: string;
+  equipes_id: number;
+  turma?: string | null;
+}
+
+export interface Partida {
+  id: number;
+  modalidade_id: number;
+  grupo_id: number | null;
+  time_a_id: number | null;
+  time_b_id: number | null;
+  placar_a: number | null;
+  placar_b: number | null;
+  status: string | null;
+  horario: string | null;
+  local: string | null;
+  fase: "GRUPO" | "MELHOR_DE_3" | "SEMIFINAL" | "TERCEIRO_LUGAR" | "FINAL" | null;
+  ordem: number | null;
+  vencedor_id: number | null;
+}
+
+export interface SumulaEvento {
+  id: number;
+  partida_id: number;
+  aluno_id: number;
+  equipe_id: number;
+  tipo: "gol" | "amarelo" | "vermelho";
+  created_at: string;
+}
+
+export interface ClassificacaoTime {
+  equipeId: number;
+  nome: string;
+  pontos: number;
+  jogos: number;
+  vitorias: number;
+  empates: number;
+  derrotas: number;
+  golsPro: number;
+  golsContra: number;
+  saldoGols: number;
+  cartoesAmarelos: number;
+  cartoesVermelhos: number;
+}
+
+export interface ArtilheiroAgrupado {
+  alunoId: number;
+  nomeAluno: string;
+  nomeEquipe: string;
+  nomeGrupo: string;
+  gols: number;
+}
+
+export interface CartoesAgrupados {
+  alunoId: number;
+  nomeAluno: string;
+  nomeEquipe: string;
+  nomeGrupo: string;
+  amarelos: number;
+  vermelhos: number;
+}
+
+export default function AlunoPage() {
+  const [modalidades, setModalidades] = useState<Modalidade[]>([]);
+  const [modalidadeSelecionada, setModalidadeSelecionada] = useState<number | null>(null);
+
+  const [grupos, setGrupos] = useState<GrupoConfronto[]>([]);
+  const [equipes, setEquipes] = useState<Equipe[]>([]);
+  const [partidas, setPartidas] = useState<Partida[]>([]);
+  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [eventosSumula, setEventosSumula] = useState<SumulaEvento[]>([]);
+
+  const [abaAtiva, setAbaAtiva] = useState<"classificacao" | "artilharia" | "cartoes" | "jogos">("classificacao");
+  const [grupoFiltro, setGrupoFiltro] = useState<number | "TODOS">("TODOS");
+  const [buscaNome, setBuscaNome] = useState("");
+
+  const [carregando, setCarregando] = useState(true);
+
+  const modalidadeAtualObj = modalidades.find((m) => Number(m.id) === Number(modalidadeSelecionada));
+  const ehFutsal =
+    Number(modalidadeSelecionada) === 1 ||
+    modalidadeAtualObj?.nome?.trim().toLowerCase() === "futsal";
+
+  function formatarDataHoraExibicao(isoString: string | null): string {
+    if (!isoString) return "A definir";
+    try {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return "A definir";
+      return d
+        .toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+        .replace(",", " às");
+    } catch {
+      return "A definir";
+    }
+  }
+
+  function formatarFaseAmigavel(fase: string | null, ordem: number | null): string {
+    if (!fase || fase === "GRUPO") return "Fase de Grupos";
+    if (fase === "SEMIFINAL") return `Semifinal ${ordem || 1}`;
+    if (fase === "TERCEIRO_LUGAR") return "Disputa de 3º Lugar";
+    if (fase === "FINAL") return "Grande Final";
+    if (fase === "MELHOR_DE_3") return `Jogo ${ordem || 1}`;
+    return fase;
+  }
+
+  function getNomeEquipe(id: number | null): string {
+    if (!id) return "A definir";
+    const eq = equipes.find((e) => Number(e.id) === Number(id));
+    return eq ? eq.nome : `Equipe #${id}`;
+  }
+
+  function getGrupoNomePorEquipe(equipeId: number | null): string {
+    if (!equipeId) return "Indefinido";
+    const eq = equipes.find((e) => Number(e.id) === Number(equipeId));
+    if (!eq) return "Indefinido";
+    const grupo = grupos.find((g) => Number(g.id) === Number(eq.grupo_id));
+    return grupo ? grupo.nome : "Indefinido";
+  }
+
+  function determinarVencedorPartida(p: Partida): number | "PENDENTE" | null {
+    if (!p.status || !STATUS_ENCERRADOS.includes(p.status)) return "PENDENTE";
+
+    const placarA = Number(p.placar_a ?? 0);
+    const placarB = Number(p.placar_b ?? 0);
+
+    if (placarA > placarB) return p.time_a_id;
+    if (placarB > placarA) return p.time_b_id;
+
+    if (p.vencedor_id) return Number(p.vencedor_id);
+
+    return "PENDENTE";
+  }
+
+  function determinarPerdedorPartida(p: Partida): number | "PENDENTE" | null {
+    const vencedor = determinarVencedorPartida(p);
+    if (!vencedor || vencedor === "PENDENTE") return "PENDENTE";
+    if (Number(vencedor) === Number(p.time_a_id)) return p.time_b_id;
+    if (Number(vencedor) === Number(p.time_b_id)) return p.time_a_id;
+    return "PENDENTE";
+  }
+
+  function avaliarSerieMelhorDe3(partidasM3: Partida[], equipesGrupo: Equipe[]) {
+    if (equipesGrupo.length !== 2 || partidasM3.length === 0) {
+      return { campeaoId: null, viceId: null, statusTexto: "" };
+    }
+
+    const eq1 = equipesGrupo[0];
+    const eq2 = equipesGrupo[1];
+
+    const j1 = partidasM3.find((p) => p.ordem === 1);
+    const j2 = partidasM3.find((p) => p.ordem === 2);
+    const j3 = partidasM3.find((p) => p.ordem === 3);
+
+    const v1 = j1 ? determinarVencedorPartida(j1) : null;
+    const v2 = j2 ? determinarVencedorPartida(j2) : null;
+    const v3 = j3 ? determinarVencedorPartida(j3) : null;
+
+    let vitoriasEq1 = 0;
+    let vitoriasEq2 = 0;
+    let pontosEq1 = 0;
+    let pontosEq2 = 0;
+
+    [j1, j2, j3].forEach((jogo) => {
+      if (!jogo || !jogo.status || !STATUS_ENCERRADOS.includes(jogo.status)) return;
+      const v = determinarVencedorPartida(jogo);
+      if (v === eq1.id) vitoriasEq1 += 1;
+      if (v === eq2.id) vitoriasEq2 += 1;
+
+      if (Number(jogo.time_a_id) === Number(eq1.id)) {
+        pontosEq1 += Number(jogo.placar_a ?? 0);
+        pontosEq2 += Number(jogo.placar_b ?? 0);
+      } else {
+        pontosEq2 += Number(jogo.placar_a ?? 0);
+        pontosEq1 += Number(jogo.placar_b ?? 0);
+      }
+    });
+
+    if (v1 && v2 && v1 !== "PENDENTE" && v2 !== "PENDENTE" && v1 === v2) {
+      const campeaoId = Number(v1);
+      const viceId = campeaoId === Number(eq1.id) ? eq2.id : eq1.id;
+      return {
+        campeaoId,
+        viceId,
+        statusTexto: "Série encerrada em 2 jogos (2–0)",
+      };
+    }
+
+    const todosEncerrados = [j1, j2, j3].every(
+      (j) => j && j.status && STATUS_ENCERRADOS.includes(j.status)
+    );
+
+    if (todosEncerrados) {
+      if (vitoriasEq1 > vitoriasEq2) {
+        return { campeaoId: eq1.id, viceId: eq2.id, statusTexto: `Série encerrada (${vitoriasEq1}–${vitoriasEq2})` };
+      }
+      if (vitoriasEq2 > vitoriasEq1) {
+        return { campeaoId: eq2.id, viceId: eq1.id, statusTexto: `Série encerrada (${vitoriasEq2}–${vitoriasEq1})` };
+      }
+
+      if (pontosEq1 > pontosEq2) {
+        return {
+          campeaoId: eq1.id,
+          viceId: eq2.id,
+          statusTexto: `Campeão definido no saldo (${pontosEq1} x ${pontosEq2})`,
+        };
+      }
+      if (pontosEq2 > pontosEq1) {
+        return {
+          campeaoId: eq2.id,
+          viceId: eq1.id,
+          statusTexto: `Campeão definido no saldo (${pontosEq2} x ${pontosEq1})`,
+        };
+      }
+
+      if (v3 && v3 !== "PENDENTE") {
+        const campeaoId = Number(v3);
+        const viceId = campeaoId === Number(eq1.id) ? eq2.id : eq1.id;
+        return {
+          campeaoId,
+          viceId,
+          statusTexto: "Campeão definido no desempate do Jogo 3",
+        };
+      }
+    }
+
+    return { campeaoId: null, viceId: null, statusTexto: "" };
+  }
+
+  useEffect(() => {
+    async function carregarModalidades() {
+      try {
+        const { data, error } = await supabase
+          .from("modalidade")
+          .select("id, nome")
+          .order("id", { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          setModalidades(data as Modalidade[]);
+          setModalidadeSelecionada(data[0].id);
+        } else {
+          setCarregando(false);
+        }
+      } catch (e) {
+        console.error("Erro ao carregar modalidades:", e);
+        setCarregando(false);
+      }
+    }
+    carregarModalidades();
+  }, []);
+
+  useEffect(() => {
+    if (!ehFutsal && (abaAtiva === "artilharia" || abaAtiva === "cartoes")) {
+      setAbaAtiva("classificacao");
+      setBuscaNome("");
+    }
+  }, [ehFutsal, abaAtiva]);
+
+  const carregarDadosCompletos = useCallback(
+    async (silencioso = false) => {
+      if (!modalidadeSelecionada) return;
+      if (!silencioso) setCarregando(true);
+
+      try {
+        const [resGrupos, resEquipes, resPartidas] = await Promise.all([
+          supabase.from("grupos_confronto").select("id, nome").order("nome", { ascending: true }),
+          supabase.from("equipes").select("*").eq("modalidades_id", modalidadeSelecionada),
+          supabase.from("partidas").select("*").eq("modalidade_id", modalidadeSelecionada),
+        ]);
+
+        if (resGrupos.error) throw resGrupos.error;
+        if (resEquipes.error) throw resEquipes.error;
+        if (resPartidas.error) throw resPartidas.error;
+
+        const listaEquipes = (resEquipes.data || []) as Equipe[];
+        const listaPartidas = (resPartidas.data || []) as Partida[];
+        const idsEquipes = listaEquipes.map((e) => e.id);
+
+        let listaAlunos: Aluno[] = [];
+        let listaEventos: SumulaEvento[] = [];
+
+        const modSelecionadaObj = modalidades.find((m) => Number(m.id) === Number(modalidadeSelecionada));
+        const isModalidadeFutsal =
+          Number(modalidadeSelecionada) === 1 ||
+          modSelecionadaObj?.nome?.trim().toLowerCase() === "futsal";
+
+        if (isModalidadeFutsal) {
+          if (idsEquipes.length > 0) {
+            const resAlunos = await supabase.from("alunos").select("*").in("equipes_id", idsEquipes);
+            if (!resAlunos.error && resAlunos.data) {
+              listaAlunos = resAlunos.data as Aluno[];
+            }
+          }
+
+          const idsPartidasEncerradas = listaPartidas
+            .filter((p) => p.status && STATUS_ENCERRADOS.includes(p.status))
+            .map((p) => p.id);
+
+          if (idsPartidasEncerradas.length > 0) {
+            const resEventos = await supabase
+              .from("sumula_eventos")
+              .select("*")
+              .in("partida_id", idsPartidasEncerradas);
+
+            if (!resEventos.error && resEventos.data) {
+              listaEventos = resEventos.data as SumulaEvento[];
+            }
+          }
+        }
+
+        setGrupos((resGrupos.data || []) as GrupoConfronto[]);
+        setEquipes(listaEquipes);
+        setPartidas(listaPartidas);
+        setAlunos(listaAlunos);
+        setEventosSumula(listaEventos);
+      } catch (e) {
+        console.error("Erro ao carregar dados do aluno:", e);
+      } finally {
+        if (!silencioso) setCarregando(false);
+      }
+    },
+    [modalidadeSelecionada, modalidades]
+  );
+
+  useEffect(() => {
+    carregarDadosCompletos(false);
+  }, [carregarDadosCompletos]);
+
+  useEffect(() => {
+    if (!modalidadeSelecionada) return;
+
+    const canal = supabase
+      .channel(`aluno-realtime-mod-${modalidadeSelecionada}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "partidas",
+          filter: `modalidade_id=eq.${modalidadeSelecionada}`,
+        },
+        () => {
+          carregarDadosCompletos(true);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "sumula_eventos",
+        },
+        () => {
+          if (ehFutsal) {
+            carregarDadosCompletos(true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(canal);
+    };
+  }, [modalidadeSelecionada, ehFutsal, carregarDadosCompletos]);
+
+  function obterGrupoDaPartida(p: Partida, equipesContexto: Equipe[]): number | null {
+    if (p.grupo_id !== null && p.grupo_id !== undefined) {
+      return Number(p.grupo_id);
+    }
+    if (!p.time_a_id || !p.time_b_id) return null;
+
+    const eqA = equipesContexto.find((e) => Number(e.id) === Number(p.time_a_id));
+    const eqB = equipesContexto.find((e) => Number(e.id) === Number(p.time_b_id));
+
+    if (eqA && eqB && Number(eqA.grupo_id) === Number(eqB.grupo_id)) {
+      return Number(eqA.grupo_id);
+    }
+
+    return null;
+  }
+
+  function calcularTabelaGrupo(grupoId: number): ClassificacaoTime[] {
+    const equipesDoGrupo = equipes.filter(
+      (e) => Number(e.grupo_id) === grupoId && Number(e.modalidades_id) === Number(modalidadeSelecionada)
+    );
+    if (equipesDoGrupo.length === 0) return [];
+
+    const partidasGrupoEncerradas = partidas.filter((p) => {
+      const ehFaseGrupo = !p.fase || p.fase === "GRUPO";
+      const ehMesmaModalidade = Number(p.modalidade_id) === Number(modalidadeSelecionada);
+      const grupoCalculado = obterGrupoDaPartida(p, equipes);
+      const pertenceAoGrupo = grupoCalculado === grupoId;
+
+      return ehFaseGrupo && ehMesmaModalidade && pertenceAoGrupo && p.status && STATUS_ENCERRADOS.includes(p.status);
+    });
+
+    const idsPartidasGrupo = partidasGrupoEncerradas.map((p) => p.id);
+
+    const cartoesMap: { [equipeId: number]: { amarelos: number; vermelhos: number } } = {};
+    if (ehFutsal) {
+      eventosSumula.forEach((ev) => {
+        if (idsPartidasGrupo.includes(Number(ev.partida_id))) {
+          const partidaDoEvento = partidasGrupoEncerradas.find((p) => Number(p.id) === Number(ev.partida_id));
+          const eqId = Number(ev.equipe_id);
+
+          if (
+            partidaDoEvento &&
+            eqId &&
+            (Number(partidaDoEvento.time_a_id) === eqId || Number(partidaDoEvento.time_b_id) === eqId)
+          ) {
+            if (!cartoesMap[eqId]) cartoesMap[eqId] = { amarelos: 0, vermelhos: 0 };
+            if (ev.tipo === "amarelo") cartoesMap[eqId].amarelos += 1;
+            if (ev.tipo === "vermelho") cartoesMap[eqId].vermelhos += 1;
+          }
+        }
+      });
+    }
+
+    const tabela: { [equipeId: number]: ClassificacaoTime } = {};
+    equipesDoGrupo.forEach((eq) => {
+      const c = cartoesMap[eq.id] || { amarelos: 0, vermelhos: 0 };
+      tabela[eq.id] = {
+        equipeId: eq.id,
+        nome: eq.nome,
+        pontos: 0,
+        jogos: 0,
+        vitorias: 0,
+        empates: 0,
+        derrotas: 0,
+        golsPro: 0,
+        golsContra: 0,
+        saldoGols: 0,
+        cartoesAmarelos: c.amarelos,
+        cartoesVermelhos: c.vermelhos,
+      };
+    });
+
+    partidasGrupoEncerradas.forEach((p) => {
+      const gA = Number(p.placar_a ?? 0);
+      const gB = Number(p.placar_b ?? 0);
+      const tA = tabela[Number(p.time_a_id)];
+      const tB = tabela[Number(p.time_b_id)];
+
+      if (tA && tB) {
+        tA.jogos += 1;
+        tB.jogos += 1;
+        tA.golsPro += gA;
+        tA.golsContra += gB;
+        tB.golsPro += gB;
+        tB.golsContra += gA;
+
+        if (gA > gB) {
+          tA.pontos += 3;
+          tA.vitorias += 1;
+          tB.derrotas += 1;
+        } else if (gB > gA) {
+          tB.pontos += 3;
+          tB.vitorias += 1;
+          tA.derrotas += 1;
+        } else {
+          tA.pontos += 1;
+          tB.pontos += 1;
+          tA.empates += 1;
+          tB.empates += 1;
+        }
+
+        tA.saldoGols = tA.golsPro - tA.golsContra;
+        tB.saldoGols = tB.golsPro - tB.golsContra;
+      }
+    });
+
+    return Object.values(tabela).sort((a, b) => {
+      if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+      if (b.saldoGols !== a.saldoGols) return b.saldoGols - a.saldoGols;
+      if (b.golsPro !== a.golsPro) return b.golsPro - a.golsPro;
+      if (ehFutsal) {
+        if (a.cartoesAmarelos !== b.cartoesAmarelos) return a.cartoesAmarelos - b.cartoesAmarelos;
+        return a.cartoesVermelhos - b.cartoesVermelhos;
+      }
+      return 0;
+    });
+  }
+
+  function calcularArtilharia(): ArtilheiroAgrupado[] {
+    if (!ehFutsal) return [];
+    const mapaGols: { [alunoId: number]: number } = {};
+
+    eventosSumula.forEach((ev) => {
+      if (ev.tipo !== "gol") return;
+
+      const partidaDoEvento = partidas.find((p) => Number(p.id) === Number(ev.partida_id));
+      if (!partidaDoEvento) return;
+      if (Number(partidaDoEvento.modalidade_id) !== Number(modalidadeSelecionada)) return;
+      if (!partidaDoEvento.status || !STATUS_ENCERRADOS.includes(partidaDoEvento.status)) return;
+
+      const grupoPartida = obterGrupoDaPartida(partidaDoEvento, equipes);
+      if (grupoFiltro !== "TODOS" && grupoPartida !== Number(grupoFiltro)) return;
+
+      const aluId = Number(ev.aluno_id);
+      const alunoObj = alunos.find((a) => Number(a.id) === aluId);
+      if (!alunoObj) return;
+
+      const eq = equipes.find((e) => Number(e.id) === Number(alunoObj.equipes_id));
+      if (!eq) return;
+
+      if (Number(eq.modalidades_id) !== Number(modalidadeSelecionada)) return;
+      if (grupoFiltro !== "TODOS" && Number(eq.grupo_id) !== Number(grupoFiltro)) return;
+      if (Number(ev.equipe_id) !== Number(eq.id)) return;
+
+      const participaDaPartida =
+        Number(partidaDoEvento.time_a_id) === Number(eq.id) ||
+        Number(partidaDoEvento.time_b_id) === Number(eq.id);
+      if (!participaDaPartida) return;
+
+      mapaGols[aluId] = (mapaGols[aluId] || 0) + 1;
+    });
+
+    const lista: ArtilheiroAgrupado[] = [];
+    Object.entries(mapaGols).forEach(([alunoIdStr, totalGols]) => {
+      const aId = Number(alunoIdStr);
+      const alunoObj = alunos.find((a) => Number(a.id) === aId);
+      if (!alunoObj) return;
+
+      const eq = equipes.find(
+        (e) => Number(e.id) === Number(alunoObj.equipes_id) && Number(e.modalidades_id) === Number(modalidadeSelecionada)
+      );
+      if (!eq) return;
+
+      if (buscaNome && !alunoObj.nome.toLowerCase().includes(buscaNome.toLowerCase())) return;
+
+      lista.push({
+        alunoId: aId,
+        nomeAluno: alunoObj.nome,
+        nomeEquipe: eq.nome,
+        nomeGrupo: getGrupoNomePorEquipe(eq.id),
+        gols: totalGols,
+      });
+    });
+
+    return lista.sort((a, b) => b.gols - a.gols);
+  }
+
+  function calcularCartoes(): CartoesAgrupados[] {
+    if (!ehFutsal) return [];
+
+    const porPartidaAluno: { [chave: string]: { alunoId: number; amarelos: number; vermelhos: number } } = {};
+
+    eventosSumula.forEach((ev) => {
+      if (ev.tipo !== "amarelo" && ev.tipo !== "vermelho") return;
+
+      const partidaDoEvento = partidas.find((p) => Number(p.id) === Number(ev.partida_id));
+      if (!partidaDoEvento) return;
+      if (Number(partidaDoEvento.modalidade_id) !== Number(modalidadeSelecionada)) return;
+      if (!partidaDoEvento.status || !STATUS_ENCERRADOS.includes(partidaDoEvento.status)) return;
+
+      const grupoPartida = obterGrupoDaPartida(partidaDoEvento, equipes);
+      if (grupoFiltro !== "TODOS" && grupoPartida !== Number(grupoFiltro)) return;
+
+      const aluId = Number(ev.aluno_id);
+      const alunoObj = alunos.find((a) => Number(a.id) === aluId);
+      if (!alunoObj) return;
+
+      const eq = equipes.find((e) => Number(e.id) === Number(alunoObj.equipes_id));
+      if (!eq) return;
+
+      if (Number(eq.modalidades_id) !== Number(modalidadeSelecionada)) return;
+      if (grupoFiltro !== "TODOS" && Number(eq.grupo_id) !== Number(grupoFiltro)) return;
+      if (Number(ev.equipe_id) !== Number(eq.id)) return;
+
+      const participaDaPartida =
+        Number(partidaDoEvento.time_a_id) === Number(eq.id) ||
+        Number(partidaDoEvento.time_b_id) === Number(eq.id);
+      if (!participaDaPartida) return;
+
+      const chave = `${partidaDoEvento.id}_${aluId}`;
+      if (!porPartidaAluno[chave]) {
+        porPartidaAluno[chave] = { alunoId: aluId, amarelos: 0, vermelhos: 0 };
+      }
+
+      if (ev.tipo === "amarelo" && porPartidaAluno[chave].amarelos < 2) {
+        porPartidaAluno[chave].amarelos += 1;
+      }
+      if (ev.tipo === "vermelho" && porPartidaAluno[chave].vermelhos < 1) {
+        porPartidaAluno[chave].vermelhos += 1;
+      }
+    });
+
+    const mapaCartoes: { [alunoId: number]: { amarelos: number; vermelhos: number } } = {};
+    Object.values(porPartidaAluno).forEach((reg) => {
+      if (!mapaCartoes[reg.alunoId]) mapaCartoes[reg.alunoId] = { amarelos: 0, vermelhos: 0 };
+      mapaCartoes[reg.alunoId].amarelos += reg.amarelos;
+      mapaCartoes[reg.alunoId].vermelhos += reg.vermelhos;
+    });
+
+    const lista: CartoesAgrupados[] = [];
+    Object.entries(mapaCartoes).forEach(([alunoIdStr, c]) => {
+      const aId = Number(alunoIdStr);
+      const alunoObj = alunos.find((a) => Number(a.id) === aId);
+      if (!alunoObj) return;
+
+      const eq = equipes.find(
+        (e) => Number(e.id) === Number(alunoObj.equipes_id) && Number(e.modalidades_id) === Number(modalidadeSelecionada)
+      );
+      if (!eq) return;
+
+      if (buscaNome && !alunoObj.nome.toLowerCase().includes(buscaNome.toLowerCase())) return;
+
+      lista.push({
+        alunoId: aId,
+        nomeAluno: alunoObj.nome,
+        nomeEquipe: eq.nome,
+        nomeGrupo: getGrupoNomePorEquipe(eq.id),
+        amarelos: c.amarelos,
+        vermelhos: c.vermelhos,
+      });
+    });
+
+    return lista.sort((a, b) => b.vermelhos - a.vermelhos || b.amarelos - a.amarelos);
+  }
+
+  const gruposExibidos =
+    grupoFiltro === "TODOS" ? grupos : grupos.filter((g) => g.id === grupoFiltro);
+
+  const artilheiros = calcularArtilharia();
+  const comCartoes = calcularCartoes();
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* CABEÇALHO */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl font-black text-amber-400">Painel do Aluno</h1>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-700/70">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Ao vivo
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              {ehFutsal
+                ? "Classificação, mata-mata, artilharia, cartões e pódio em tempo real."
+                : "Classificação, jogos, chaveamento e pódio em tempo real."}
+            </p>
+          </div>
+
+          <div className="w-full md:w-auto">
+            <select
+              suppressHydrationWarning
+              value={modalidadeSelecionada || ""}
+              onChange={(e) => {
+                setModalidadeSelecionada(Number(e.target.value));
+                setGrupoFiltro("TODOS");
+              }}
+              className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-xs font-bold px-4 py-2.5 rounded-xl outline-none focus:border-amber-400"
+            >
+              {modalidades.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nome.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* ABAS E FILTROS */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-2xl">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setAbaAtiva("classificacao")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                abaAtiva === "classificacao"
+                  ? "bg-amber-400 text-slate-950 font-black"
+                  : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+              }`}
+            >
+              Classificação & Pódio
+            </button>
+
+            {ehFutsal && (
+              <>
+                <button
+                  onClick={() => setAbaAtiva("artilharia")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    abaAtiva === "artilharia"
+                      ? "bg-amber-400 text-slate-950 font-black"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                  }`}
+                >
+                  Artilharia
+                </button>
+                <button
+                  onClick={() => setAbaAtiva("cartoes")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    abaAtiva === "cartoes"
+                      ? "bg-amber-400 text-slate-950 font-black"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                  }`}
+                >
+                  Cartões
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={() => setAbaAtiva("jogos")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                abaAtiva === "jogos"
+                  ? "bg-amber-400 text-slate-950 font-black"
+                  : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+              }`}
+            >
+              Jogos
+            </button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <select
+              suppressHydrationWarning
+              value={grupoFiltro}
+              onChange={(e) => setGrupoFiltro(e.target.value === "TODOS" ? "TODOS" : Number(e.target.value))}
+              aria-label="Filtrar por Grupo"
+              className="bg-slate-950 border border-slate-800 text-xs font-bold px-3 py-2 rounded-xl text-slate-200 outline-none focus:border-amber-400"
+            >
+              <option value="TODOS">Todos os Grupos</option>
+              {grupos.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.nome}
+                </option>
+              ))}
+            </select>
+
+            {ehFutsal && (abaAtiva === "artilharia" || abaAtiva === "cartoes") && (
+              <input
+                type="text"
+                placeholder="Buscar atleta..."
+                value={buscaNome}
+                onChange={(e) => setBuscaNome(e.target.value)}
+                className="w-full sm:w-52 bg-slate-950 border border-slate-800 text-xs px-3 py-2 rounded-xl text-slate-200 outline-none focus:border-amber-400"
+              />
+            )}
+          </div>
+        </div>
+
+        {carregando ? (
+          <div className="text-center py-12 text-slate-400 text-sm font-bold animate-pulse">
+            Carregando informações...
+          </div>
+        ) : (
+          <>
+            {/* ABA 1: CLASSIFICAÇÃO, MATA-MATA E PÓDIO */}
+            {abaAtiva === "classificacao" &&
+              gruposExibidos.map((grupo) => {
+                const tabela = calcularTabelaGrupo(grupo.id);
+                const equipesDoGrupo = equipes.filter(
+                  (e) => Number(e.grupo_id) === grupo.id && Number(e.modalidades_id) === Number(modalidadeSelecionada)
+                );
+
+                if (equipesDoGrupo.length === 0) return null;
+
+                const partidasDoGrupo = partidas.filter(
+                  (p) =>
+                    obterGrupoDaPartida(p, equipes) === grupo.id &&
+                    Number(p.modalidade_id) === Number(modalidadeSelecionada)
+                );
+
+                const partidasM3 = partidasDoGrupo.filter((p) => p.fase === "MELHOR_DE_3");
+                const j1 = partidasM3.find((p) => p.ordem === 1);
+                const j2 = partidasM3.find((p) => p.ordem === 2);
+                const j3 = partidasM3.find((p) => p.ordem === 3);
+
+                const resultadoM3 = avaliarSerieMelhorDe3(partidasM3, equipesDoGrupo);
+
+                const semifinais = partidasDoGrupo.filter((p) => p.fase === "SEMIFINAL");
+                const terceiroPartidas = partidasDoGrupo.filter((p) => p.fase === "TERCEIRO_LUGAR");
+                const partidaTerceiro = terceiroPartidas[0];
+                const vencTerceiro = partidaTerceiro ? determinarVencedorPartida(partidaTerceiro) : null;
+
+                const finalPartidas = partidasDoGrupo.filter((p) => p.fase === "FINAL");
+                const partidaFinal = finalPartidas[0];
+                const vencFinal = partidaFinal ? determinarVencedorPartida(partidaFinal) : null;
+                const viceFinal = partidaFinal ? determinarPerdedorPartida(partidaFinal) : null;
+
+                let primeiroLugar: string | null = null;
+                let segundoLugar: string | null = null;
+                let terceiroLugar: string | null = null;
+
+                if (equipesDoGrupo.length === 2 && resultadoM3.campeaoId) {
+                  primeiroLugar = getNomeEquipe(resultadoM3.campeaoId);
+                  segundoLugar = resultadoM3.viceId ? getNomeEquipe(resultadoM3.viceId) : null;
+                } else if (equipesDoGrupo.length === 3 && vencFinal && vencFinal !== "PENDENTE") {
+                  primeiroLugar = getNomeEquipe(Number(vencFinal));
+                  segundoLugar = viceFinal && viceFinal !== "PENDENTE" ? getNomeEquipe(Number(viceFinal)) : null;
+                  if (tabela.length >= 3) {
+                    terceiroLugar = tabela[2].nome;
+                  }
+                } else if (equipesDoGrupo.length >= 4 && vencFinal && vencFinal !== "PENDENTE") {
+                  primeiroLugar = getNomeEquipe(Number(vencFinal));
+                  segundoLugar = viceFinal && viceFinal !== "PENDENTE" ? getNomeEquipe(Number(viceFinal)) : null;
+                  if (vencTerceiro && vencTerceiro !== "PENDENTE") {
+                    terceiroLugar = getNomeEquipe(Number(vencTerceiro));
+                  }
+                }
+
+                return (
+                  <div key={grupo.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <h2 className="text-lg font-black text-amber-400">{grupo.nome}</h2>
+                      <span className="text-xs text-slate-400 font-bold">
+                        {equipesDoGrupo.length} equipes
+                      </span>
+                    </div>
+
+                    {/* Tabela de Classificação */}
+                    {equipesDoGrupo.length >= 3 && (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
+                              <th className="p-2.5 w-10">#</th>
+                              <th className="p-2.5">Equipe</th>
+                              <th className="p-2.5 text-center">Pts</th>
+                              <th className="p-2.5 text-center">J</th>
+                              <th className="p-2.5 text-center">V</th>
+                              <th className="p-2.5 text-center">E</th>
+                              <th className="p-2.5 text-center">D</th>
+                              <th className="p-2.5 text-center">{ehFutsal ? "GP" : "PP"}</th>
+                              <th className="p-2.5 text-center">{ehFutsal ? "GC" : "PC"}</th>
+                              <th className="p-2.5 text-center">{ehFutsal ? "SG" : "SP"}</th>
+                              {ehFutsal && (
+                                <>
+                                  <th className="p-2.5 text-center">CA</th>
+                                  <th className="p-2.5 text-center">CV</th>
+                                </>
+                              )}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/80">
+                            {tabela.map((t, idx) => (
+                              <tr key={t.equipeId} className="hover:bg-slate-950/60 transition">
+                                <td className="p-2.5 font-black text-slate-400">{idx + 1}º</td>
+                                <td className="p-2.5 font-bold text-slate-100">{t.nome}</td>
+                                <td className="p-2.5 text-center font-black text-amber-400">{t.pontos}</td>
+                                <td className="p-2.5 text-center">{t.jogos}</td>
+                                <td className="p-2.5 text-center">{t.vitorias}</td>
+                                <td className="p-2.5 text-center">{t.empates}</td>
+                                <td className="p-2.5 text-center">{t.derrotas}</td>
+                                <td className="p-2.5 text-center">{t.golsPro}</td>
+                                <td className="p-2.5 text-center">{t.golsContra}</td>
+                                <td className="p-2.5 text-center font-bold">{t.saldoGols}</td>
+                                {ehFutsal && (
+                                  <>
+                                    <td className="p-2.5 text-center text-amber-400 font-bold">{t.cartoesAmarelos}</td>
+                                    <td className="p-2.5 text-center text-red-400 font-bold">{t.cartoesVermelhos}</td>
+                                  </>
+                                )}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Melhor de 3 */}
+                    {equipesDoGrupo.length === 2 && partidasM3.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                          Série Melhor de 3
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {j1 && <CardPartidaMataMata partida={j1} titulo="Jogo 1" getNomeEquipe={getNomeEquipe} />}
+                          {j2 && <CardPartidaMataMata partida={j2} titulo="Jogo 2" getNomeEquipe={getNomeEquipe} />}
+                          {j3 && <CardPartidaMataMata partida={j3} titulo="Jogo 3" getNomeEquipe={getNomeEquipe} />}
+                        </div>
+                        {resultadoM3.statusTexto && (
+                          <p className="text-[11px] text-amber-400 font-bold text-center">
+                            {resultadoM3.statusTexto}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Final (3 Equipes) */}
+                    {equipesDoGrupo.length === 3 && finalPartidas.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                          Grande Final
+                        </h3>
+                        <CardPartidaMataMata
+                          partida={partidaFinal}
+                          titulo="Final"
+                          getNomeEquipe={getNomeEquipe}
+                        />
+                        {vencFinal === "PENDENTE" && STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
+                          <div className="p-3 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                            ⚠️ Final empatada — aguardando definição de desempate.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Mata-Mata (4+ Equipes) */}
+                    {equipesDoGrupo.length >= 4 &&
+                      (semifinais.length > 0 || terceiroPartidas.length > 0 || finalPartidas.length > 0) && (
+                        <div className="pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {semifinais.length > 0 && (
+                            <div className="space-y-3">
+                              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                                Semifinais
+                              </h3>
+                              {semifinais.map((semi) => (
+                                <CardPartidaMataMata
+                                  key={semi.id}
+                                  partida={semi}
+                                  titulo={formatarFaseAmigavel(semi.fase, semi.ordem)}
+                                  getNomeEquipe={getNomeEquipe}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="space-y-3">
+                            {finalPartidas.length > 0 && (
+                              <div className="space-y-2">
+                                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                                  Grande Final
+                                </h3>
+                                <CardPartidaMataMata
+                                  partida={partidaFinal}
+                                  titulo="Final"
+                                  getNomeEquipe={getNomeEquipe}
+                                />
+                                {vencFinal === "PENDENTE" && STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
+                                  <div className="p-2.5 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                                    ⚠️ Final empatada — aguardando desempate.
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {terceiroPartidas.length > 0 && (
+                              <div className="space-y-2">
+                                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                                  Disputa de 3º Lugar
+                                </h3>
+                                <CardPartidaMataMata
+                                  partida={partidaTerceiro}
+                                  titulo="3º Lugar"
+                                  getNomeEquipe={getNomeEquipe}
+                                />
+                                {vencTerceiro === "PENDENTE" &&
+                                  STATUS_ENCERRADOS.includes(partidaTerceiro.status || "") && (
+                                    <div className="p-2.5 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                                      ⚠️ Disputa de 3º empatada — aguardando desempate.
+                                    </div>
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* PÓDIO */}
+                    {primeiroLugar && (
+                      <div className="pt-4 border-t border-slate-800 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                          🏆 Pódio Oficial
+                        </h3>
+                        <div className={`grid grid-cols-1 ${terceiroLugar ? "md:grid-cols-3" : "md:grid-cols-2"} gap-3`}>
+                          <div className="bg-amber-950/30 border border-amber-500/60 p-4 rounded-xl text-center">
+                            <span className="text-[11px] font-black uppercase text-amber-400 block">
+                              🥇 Campeão
+                            </span>
+                            <span className="text-base font-black text-white mt-1 block">
+                              {primeiroLugar}
+                            </span>
+                          </div>
+
+                          {segundoLugar && (
+                            <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center">
+                              <span className="text-[11px] font-black uppercase text-slate-300 block">
+                                🥈 Vice-Campeão
+                              </span>
+                              <span className="text-base font-bold text-slate-100 mt-1 block">
+                                {segundoLugar}
+                              </span>
+                            </div>
+                          )}
+
+                          {terceiroLugar && (
+                            <div className="bg-orange-950/25 border border-orange-600/50 p-4 rounded-xl text-center">
+                              <span className="text-[11px] font-black uppercase text-orange-400 block">
+                                🥉 3º Lugar
+                              </span>
+                              <span className="text-base font-bold text-orange-100 mt-1 block">
+                                {terceiroLugar}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+            {/* ABA 2: ARTILHARIA */}
+            {ehFutsal && abaAtiva === "artilharia" && (
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <h2 className="text-lg font-black text-amber-400">Artilharia</h2>
+                {artilheiros.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic">
+                    Nenhum gol registrado em partidas finalizadas para este filtro.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
+                          <th className="p-2.5 w-12">#</th>
+                          <th className="p-2.5">Atleta</th>
+                          <th className="p-2.5">Equipe</th>
+                          <th className="p-2.5">Grupo</th>
+                          <th className="p-2.5 text-center">Gols</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/80">
+                        {artilheiros.map((item, idx) => (
+                          <tr key={item.alunoId} className="hover:bg-slate-950/60 transition">
+                            <td className="p-2.5 font-black text-slate-400">{idx + 1}º</td>
+                            <td className="p-2.5 font-bold text-slate-100">{item.nomeAluno}</td>
+                            <td className="p-2.5 text-slate-300">{item.nomeEquipe}</td>
+                            <td className="p-2.5 text-slate-400">{item.nomeGrupo}</td>
+                            <td className="p-2.5 text-center font-black text-amber-400 text-sm">
+                              ⚽ {item.gols}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ABA 3: CARTÕES */}
+            {ehFutsal && abaAtiva === "cartoes" && (
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <h2 className="text-lg font-black text-amber-400">Cartões</h2>
+                {comCartoes.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic">
+                    Nenhum cartão registrado em partidas finalizadas para este filtro.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
+                          <th className="p-2.5">Atleta</th>
+                          <th className="p-2.5">Equipe</th>
+                          <th className="p-2.5">Grupo</th>
+                          <th className="p-2.5 text-center">🟨 Amarelos</th>
+                          <th className="p-2.5 text-center">🟥 Vermelhos</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/80">
+                        {comCartoes.map((item) => (
+                          <tr key={item.alunoId} className="hover:bg-slate-950/60 transition">
+                            <td className="p-2.5 font-bold text-slate-100">{item.nomeAluno}</td>
+                            <td className="p-2.5 text-slate-300">{item.nomeEquipe}</td>
+                            <td className="p-2.5 text-slate-400">{item.nomeGrupo}</td>
+                            <td className="p-2.5 text-center font-bold text-amber-400">{item.amarelos}</td>
+                            <td className="p-2.5 text-center font-bold text-red-400">{item.vermelhos}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ABA 4: JOGOS */}
+            {abaAtiva === "jogos" &&
+              gruposExibidos.map((grupo) => {
+                const partidasDoGrupo = partidas.filter(
+                  (p) =>
+                    obterGrupoDaPartida(p, equipes) === grupo.id &&
+                    Number(p.modalidade_id) === Number(modalidadeSelecionada)
+                );
+                if (partidasDoGrupo.length === 0) return null;
+
+                const pGrupo = partidasDoGrupo.filter((p) => !p.fase || p.fase === "GRUPO");
+                const pM3 = partidasDoGrupo.filter((p) => p.fase === "MELHOR_DE_3");
+                const pSemi = partidasDoGrupo.filter((p) => p.fase === "SEMIFINAL");
+                const pTerceiro = partidasDoGrupo.filter((p) => p.fase === "TERCEIRO_LUGAR");
+                const pFinal = partidasDoGrupo.filter((p) => p.fase === "FINAL");
+
+                return (
+                  <div key={grupo.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                    <h2 className="text-lg font-black text-amber-400 border-b border-slate-800 pb-3">
+                      {grupo.nome}
+                    </h2>
+
+                    {pGrupo.length > 0 && (
+                      <BlocoJogosFase
+                        titulo="Fase de Grupos"
+                        partidas={pGrupo}
+                        getNomeEquipe={getNomeEquipe}
+                        formatarDataHora={formatarDataHoraExibicao}
+                        formatarFaseAmigavel={formatarFaseAmigavel}
+                      />
+                    )}
+
+                    {pM3.length > 0 && (
+                      <BlocoJogosFase
+                        titulo="Melhor de 3"
+                        partidas={pM3}
+                        getNomeEquipe={getNomeEquipe}
+                        formatarDataHora={formatarDataHoraExibicao}
+                        formatarFaseAmigavel={formatarFaseAmigavel}
+                      />
+                    )}
+
+                    {pSemi.length > 0 && (
+                      <BlocoJogosFase
+                        titulo="Semifinais"
+                        partidas={pSemi}
+                        getNomeEquipe={getNomeEquipe}
+                        formatarDataHora={formatarDataHoraExibicao}
+                        formatarFaseAmigavel={formatarFaseAmigavel}
+                      />
+                    )}
+
+                    {pTerceiro.length > 0 && (
+                      <BlocoJogosFase
+                        titulo="Disputa de 3º Lugar"
+                        partidas={pTerceiro}
+                        getNomeEquipe={getNomeEquipe}
+                        formatarDataHora={formatarDataHoraExibicao}
+                        formatarFaseAmigavel={formatarFaseAmigavel}
+                      />
+                    )}
+
+                    {pFinal.length > 0 && (
+                      <BlocoJogosFase
+                        titulo="Grande Final"
+                        partidas={pFinal}
+                        getNomeEquipe={getNomeEquipe}
+                        formatarDataHora={formatarDataHoraExibicao}
+                        formatarFaseAmigavel={formatarFaseAmigavel}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+          </>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <FooterVoltar href="/" label="Voltar ao Início" />
+      </div>
+    </main>
+  );
+}
+
+function CardPartidaMataMata({
+  partida,
+  titulo,
+  getNomeEquipe,
+}: {
+  partida: Partida;
+  titulo: string;
+  getNomeEquipe: (id: number | null) => string;
+}) {
+  const pA = partida.placar_a ?? 0;
+  const pB = partida.placar_b ?? 0;
+  const ehEmpate = pA === pB;
+  const statusEncerrado = partida.status && STATUS_ENCERRADOS.includes(partida.status);
+  const temPenaltis = ehEmpate && partida.vencedor_id && statusEncerrado;
+
+  return (
+    <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2.5">
+      <div className="flex justify-between items-center text-[10px] font-bold uppercase">
+        <span className="text-amber-400 bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800">
+          {titulo}
+        </span>
+        <span
+          className={`px-2 py-0.5 rounded ${
+            statusEncerrado
+              ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/80"
+              : "bg-slate-900 text-slate-400 border border-slate-800"
+          }`}
+        >
+          {partida.status ? partida.status.replace("_", " ") : "agendada"}
+        </span>
+      </div>
+
+      <div className="flex justify-between items-center text-xs font-bold py-1">
+        <span
+          className={
+            pA > pB || (ehEmpate && Number(partida.vencedor_id) === Number(partida.time_a_id))
+              ? "text-amber-400"
+              : "text-slate-200"
+          }
+        >
+          {getNomeEquipe(partida.time_a_id)}
+        </span>
+        <span className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-amber-400 font-black">
+          {pA} x {pB}
+        </span>
+        <span
+          className={
+            pB > pA || (ehEmpate && Number(partida.vencedor_id) === Number(partida.time_b_id))
+              ? "text-amber-400"
+              : "text-slate-200"
+          }
+        >
+          {getNomeEquipe(partida.time_b_id)}
+        </span>
+      </div>
+
+      {temPenaltis && (
+        <div className="text-[10px] text-emerald-400 text-center font-bold bg-emerald-950/30 p-1.5 rounded-lg border border-emerald-800/50">
+          🏆 Desempate: {getNomeEquipe(partida.vencedor_id)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BlocoJogosFase({
+  titulo,
+  partidas,
+  getNomeEquipe,
+  formatarDataHora,
+  formatarFaseAmigavel,
+}: {
+  titulo: string;
+  partidas: Partida[];
+  getNomeEquipe: (id: number | null) => string;
+  formatarDataHora: (iso: string | null) => string;
+  formatarFaseAmigavel: (fase: string | null, ordem: number | null) => string;
+}) {
+  return (
+    <div className="space-y-3">
+      <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-1.5">
+        {titulo}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {partidas.map((p) => {
+          const statusPartida = p.status || "agendada";
+          const statusEncerrado = STATUS_ENCERRADOS.includes(statusPartida);
+          const pA = p.placar_a ?? 0;
+          const pB = p.placar_b ?? 0;
+          const ehEmpate = pA === pB;
+          const temPenaltis = ehEmpate && p.vencedor_id && statusEncerrado;
+
+          return (
+            <div key={p.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2.5">
+              <div className="flex justify-between items-center text-[10px] font-bold uppercase">
+                <span className="text-amber-400 bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800">
+                  {formatarFaseAmigavel(p.fase, p.ordem)}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded ${
+                    statusEncerrado
+                      ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/80"
+                      : statusPartida === "em_andamento"
+                      ? "bg-amber-950/60 text-amber-400 border border-amber-800/80"
+                      : "bg-slate-900 text-slate-400 border border-slate-800"
+                  }`}
+                >
+                  {statusPartida.replace("_", " ")}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs font-bold py-1">
+                <span className="text-slate-200">{getNomeEquipe(p.time_a_id)}</span>
+                <span className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-amber-400 font-black">
+                  {pA} x {pB}
+                </span>
+                <span className="text-slate-200">{getNomeEquipe(p.time_b_id)}</span>
+              </div>
+
+              <div className="text-[11px] text-slate-400 flex justify-between items-center pt-1.5 border-t border-slate-800/80">
+                <span>📅 {formatarDataHora(p.horario)}</span>
+                {p.local && <span>📍 {p.local}</span>}
+              </div>
+
+              {temPenaltis && (
+                <div className="text-[10px] text-emerald-400 text-center font-bold bg-emerald-950/30 p-1.5 rounded-lg border border-emerald-800/50">
+                  🏆 Desempate: {getNomeEquipe(p.vencedor_id)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
