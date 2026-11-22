@@ -23,12 +23,6 @@ export default function Home() {
           </svg>
 
           <div className="relative z-10 space-y-4">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 px-3.5 py-1.5 rounded-full">
-              <span className="h-2 w-2 rounded-full bg-[#f06449]" />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/90">
-                Projeto Juno • Central Oficial
-              </span>
-            </div>
 
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
               Jogos Internos
