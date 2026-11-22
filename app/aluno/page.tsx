@@ -676,13 +676,6 @@ export default function AlunoPage() {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full">
-                  Projeto Juno
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Tempo Real
-                </span>
                 {totalJogosAoVivo > 0 && (
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f06449] text-white">
                     {totalJogosAoVivo} {totalJogosAoVivo === 1 ? "jogo agora" : "jogos agora"}
