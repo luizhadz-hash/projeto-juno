@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏆 Projeto Juno — Sistema de Gestão de Jogos Internos
 
-## Getting Started
+Plataforma web full-stack desenvolvida para modernizar a organização de campeonatos escolares interclasses (**Futsal, Vôlei e Queimada**), substituindo planilhas manuais e súmulas em papel por atualizações em tempo real.
 
-First, run the development server:
+🔗 **Acesse em produção:** [jogos-internos.vercel.app](https://jogos-internos.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Funcionalidades Principais
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📱 Portal Público do Aluno (`/aluno`)
+- **Acesso via QR Code:** Interface mobile-first para acompanhamento pelo celular durante os jogos.
+- **Tempo Real (WebSockets):** Placares, classificação e estatísticas atualizados automaticamente sem recarregar a página.
+- **Classificação & Pódio:** Cálculo automático de pontos, saldo de gols/pontos, critérios de desempate disciplinar e pódio oficial.
+- **Artilharia & Cartões (Futsal):** Rankings individuais com filtros por grupo e busca por atleta.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📋 Painel Administrativo & Súmula Digital (`/professor`)
+- **Autenticação Protegida:** Acesso restrito aos organizadores e árbitros via Supabase SSR.
+- **Gestão Completa:** Cadastro de equipes, atletas, datas, locais e gerador de QR Code para divulgação na escola.
+- **Chaveamento Inteligente:** Geração automática de fase de grupos, mata-mata (semifinais, 3º lugar e final) ou série melhor de 3 conforme o número de equipes inscritas.
+- **Súmula Digital & Impressão A4:** Registro ao vivo de gols, cartões amarelos/vermelhos e desempates nos pênaltis, com layout dedicado para impressão oficial em folha A4.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tecnologias Utilizadas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Front-end:** Next.js (App Router), React, TypeScript, Tailwind CSS (*Bento Sports UI*)
+- **Back-end & Banco de Dados:** Supabase (PostgreSQL, SSR Auth, Realtime)
+- **Deploy & CI/CD:** GitHub + Vercel
