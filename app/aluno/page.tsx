@@ -1255,10 +1255,6 @@ export default function AlunoPage() {
           </>
         )}
       </div>
-
-      <div className="mt-8">
-        <FooterVoltar href="/" label="Voltar ao Início" />
-      </div>
     </main>
   );
 }
