@@ -763,8 +763,8 @@ export default function SumulaDigitalPage({
 
   if (carregando) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-200 p-8 flex items-center justify-center">
-        <p className="text-sm text-slate-400 font-bold animate-pulse">
+      <main className="min-h-screen bg-[#eef2f6] text-slate-900 p-8 flex items-center justify-center">
+        <p className="text-sm text-slate-500 font-bold animate-pulse">
           Carregando dados da súmula...
         </p>
       </main>
@@ -789,14 +789,14 @@ export default function SumulaDigitalPage({
       : equipeB?.nome || "Equipe B";
 
   return (
-    <main className="print-container min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <main className="print-container min-h-screen bg-[#eef2f6] text-slate-900 p-4 sm:p-6 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-5">
         {/* CABEÇALHO OFICIAL EXCLUSIVO PARA IMPRESSÃO */}
         <div className="print-only border-b-2 border-black pb-3 mb-4">
           <div className="flex justify-between items-end">
             <div>
               <h1 className="text-xl font-black uppercase tracking-wide">
-                PROJETO JUNO — Súmula Oficial da Partida #{partidaId}
+                Súmula Oficial da Partida #{partidaId}
               </h1>
               <p className="text-xs font-bold mt-1">
                 Modalidade: {modalidade?.nome?.toUpperCase() || "—"} •{" "}
@@ -820,31 +820,32 @@ export default function SumulaDigitalPage({
         </div>
 
         {/* BARRA SUPERIOR DE NAVEGAÇÃO E IMPRESSÃO */}
-        <div className="no-print flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 px-5 py-3.5 rounded-2xl">
+        <div className="no-print bento-card flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
           <Link
             href="/professor/partidas"
-            className="text-xs font-bold text-slate-300 hover:text-amber-400 transition flex items-center gap-2"
+            className="text-xs font-bold text-slate-700 hover:text-[#e05338] transition flex items-center gap-2"
           >
-            <span>←</span>
+            <span className="text-[#f06449] font-black">←</span>
             <span>Voltar para Partidas & Súmulas</span>
           </Link>
 
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-bold transition"
+            className="px-4 py-2 bg-[#52657a] hover:bg-[#3f5063] text-white rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2"
           >
-            Imprimir Súmula
+            <span>🖨️</span>
+            <span>Imprimir Súmula</span>
           </button>
         </div>
 
         {/* Notificações de Erro/Sucesso */}
         {mensagemErro && (
-          <div className="no-print bg-red-950/80 border border-red-500/80 text-red-200 p-4 rounded-xl text-xs font-semibold flex justify-between items-center">
+          <div className="no-print bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-xs font-bold flex justify-between items-center shadow-xs">
             <span>{mensagemErro}</span>
             <button
               onClick={() => setMensagemErro(null)}
-              className="text-red-400 font-bold ml-4"
+              className="text-rose-500 hover:text-rose-700 font-black ml-4 cursor-pointer"
             >
               ✕
             </button>
@@ -852,11 +853,11 @@ export default function SumulaDigitalPage({
         )}
 
         {mensagemSucesso && (
-          <div className="no-print bg-emerald-950/80 border border-emerald-500/80 text-emerald-200 p-4 rounded-xl text-xs font-semibold flex justify-between items-center">
+          <div className="no-print bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl text-xs font-bold flex justify-between items-center shadow-xs">
             <span>{mensagemSucesso}</span>
             <button
               onClick={() => setMensagemSucesso(null)}
-              className="text-emerald-400 font-bold ml-4"
+              className="text-emerald-500 hover:text-emerald-700 font-black ml-4 cursor-pointer"
             >
               ✕
             </button>
@@ -865,66 +866,68 @@ export default function SumulaDigitalPage({
 
         {/* Alerta de Edição Bloqueada */}
         {partidaFinalizada && (
-          <div className="no-print bg-amber-950/50 border border-amber-500/60 text-amber-300 p-3.5 rounded-xl text-xs font-bold text-center">
+          <div className="no-print bg-amber-50 border border-amber-200 text-amber-900 p-3.5 rounded-2xl text-xs font-bold text-center">
             Partida finalizada — edição bloqueada. Utilize o botão &ldquo;Imprimir Súmula&rdquo; acima para emitir o documento oficial.
           </div>
         )}
 
-        {/* PLACAR E CABEÇALHO DA PARTIDA */}
-        <section className="print-card bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-xl">
+        {/* HERO PLACAR E CABEÇALHO DA PARTIDA */}
+        <section className="print-card bento-hero court-grid-bg p-6 sm:p-8 text-center">
           <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 bg-slate-950 px-3 py-1 rounded-full border border-slate-800">
+            <span className="text-[11px] font-black uppercase tracking-wider text-white bg-white/15 px-3 py-1 rounded-full">
               {modalidade?.nome || "Modalidade"}
             </span>
 
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 bg-slate-950 px-3 py-1 rounded-full border border-slate-800">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-100 bg-white/10 px-3 py-1 rounded-full">
               {formatarFase(partida?.fase || null, partida?.ordem || null)}
             </span>
 
             <span
-              className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
+              className={`text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${
                 partidaFinalizada
-                  ? "text-emerald-400 bg-emerald-950/50 border-emerald-800/80"
-                  : "text-amber-400 bg-amber-950/40 border-amber-800/80"
+                  ? "text-emerald-950 bg-emerald-300"
+                  : partida?.status === "em_andamento"
+                  ? "text-white bg-[#f06449]"
+                  : "text-slate-100 bg-white/15"
               }`}
             >
               {partida?.status ? partida.status.replace("_", " ") : "Agendada"}
             </span>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-400 mb-6">
-            <span>{formatarDataHora(partida?.horario || null)}</span>
-            {partida?.local && <span>• Local: {partida.local}</span>}
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-slate-200/90 mb-6">
+            <span>📅 {formatarDataHora(partida?.horario || null)}</span>
+            {partida?.local && <span>• 📍 {partida.local}</span>}
           </div>
 
           <div className="grid grid-cols-3 items-center gap-2 my-4">
             <div className="text-right pr-2 md:pr-6">
-              <h2 className="text-lg md:text-2xl font-black text-slate-100">
+              <h2 className="text-lg md:text-2xl font-black text-white">
                 {equipeA?.nome || "Time A"}
               </h2>
               {equipeA?.serie_turma && (
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-200/80 mt-0.5">
                   {equipeA.serie_turma}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-3 bg-slate-950 px-4 py-3.5 rounded-2xl border border-slate-800 mx-auto">
-              <span className="text-3xl md:text-5xl font-black text-amber-400">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 bg-white px-5 py-3.5 rounded-2xl shadow-lg mx-auto">
+              <span className="text-3xl md:text-5xl font-black text-slate-900">
                 {placarA}
               </span>
-              <span className="text-slate-600 font-bold text-lg">x</span>
-              <span className="text-3xl md:text-5xl font-black text-amber-400">
+              <span className="text-[#f06449] font-black text-lg">x</span>
+              <span className="text-3xl md:text-5xl font-black text-slate-900">
                 {placarB}
               </span>
             </div>
 
             <div className="text-left pl-2 md:pl-6">
-              <h2 className="text-lg md:text-2xl font-black text-slate-100">
+              <h2 className="text-lg md:text-2xl font-black text-white">
                 {equipeB?.nome || "Time B"}
               </h2>
               {equipeB?.serie_turma && (
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-200/80 mt-0.5">
                   {equipeB.serie_turma}
                 </p>
               )}
@@ -933,8 +936,8 @@ export default function SumulaDigitalPage({
 
           {/* Vencedor do Desempate */}
           {partidaFinalizada && partida?.vencedor_id && ehEmpate && (
-            <div className="mt-3 text-xs font-bold text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg border border-emerald-800/60 inline-block">
-              Vencedor do desempate:{" "}
+            <div className="mt-3 text-xs font-black text-emerald-950 bg-emerald-300 px-3.5 py-1.5 rounded-xl inline-block">
+              🏆 Vencedor do desempate:{" "}
               {partida.vencedor_id === equipeA?.id
                 ? equipeA?.nome
                 : equipeB?.nome}
@@ -942,14 +945,14 @@ export default function SumulaDigitalPage({
           )}
 
           {/* Controle de Status */}
-          <div className="no-print flex justify-center gap-3 pt-5 mt-5 border-t border-slate-800">
+          <div className="no-print flex flex-wrap justify-center gap-3 pt-5 mt-6 border-t border-white/15">
             <button
               disabled={processando || partidaFinalizada}
               onClick={() => alterarStatusPartida("em_andamento")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition disabled:opacity-40 ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer disabled:opacity-40 ${
                 partida?.status === "em_andamento"
-                  ? "bg-amber-400 text-slate-950 font-black"
-                  : "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+                  ? "bg-[#f06449] text-white shadow-sm"
+                  : "bg-white/15 hover:bg-white/25 text-white border border-white/20"
               }`}
             >
               Em Andamento
@@ -957,10 +960,10 @@ export default function SumulaDigitalPage({
             <button
               disabled={processando || partidaFinalizada}
               onClick={() => alterarStatusPartida("finalizada")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition disabled:opacity-40 ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer disabled:opacity-40 ${
                 partida?.status === "finalizada"
-                  ? "bg-emerald-500 text-slate-950 font-black"
-                  : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                  ? "bg-emerald-400 text-emerald-950"
+                  : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-sm"
               }`}
             >
               Finalizar Partida
@@ -971,27 +974,30 @@ export default function SumulaDigitalPage({
         {/* MÓDULO 1: SÚMULA FUTSAL (Atletas, Gols e Disciplina) */}
         {isFutsal ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {[
                 { equipe: equipeA, alunos: alunosA, id: partida?.time_a_id },
                 { equipe: equipeB, alunos: alunosB, id: partida?.time_b_id },
               ].map(({ equipe, alunos, id }, idx) => (
                 <section
                   key={id || `eq-${idx}`}
-                  className="print-card bg-slate-900 border border-slate-800 p-5 rounded-2xl"
+                  className="print-card bento-card p-5 sm:p-6"
                 >
-                  <div className="flex justify-between items-center pb-3 mb-4 border-b border-slate-800">
-                    <h3 className="font-black text-sm text-amber-400 uppercase tracking-wide">
-                      {equipe?.nome || "Equipe"}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-bold">
+                  <div className="flex justify-between items-center pb-3.5 mb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+                      <h3 className="font-black text-sm text-slate-900 uppercase tracking-wide">
+                        {equipe?.nome || "Equipe"}
+                      </h3>
+                    </div>
+                    <span className="text-xs text-[#3b4b5e] bg-[#52657a]/10 px-2.5 py-0.5 rounded-full font-bold">
                       {alunos.length} atletas
                     </span>
                   </div>
 
                   <div className="space-y-2.5">
                     {alunos.length === 0 ? (
-                      <p className="text-xs text-slate-500 italic">
+                      <p className="text-xs text-slate-500 italic py-4 text-center">
                         Nenhum aluno cadastrado nesta equipe.
                       </p>
                     ) : (
@@ -1010,19 +1016,19 @@ export default function SumulaDigitalPage({
                         return (
                           <div
                             key={aluno.id}
-                            className={`print-box p-3 rounded-xl border space-y-2 transition ${
+                            className={`print-box p-3.5 rounded-2xl border space-y-2.5 transition ${
                               expulso
-                                ? "bg-red-950/20 border-red-800/60"
-                                : "bg-slate-950 border-slate-800"
+                                ? "bg-rose-50/90 border-rose-200"
+                                : "bg-slate-50/90 border-slate-200/90"
                             }`}
                           >
                             <div className="flex justify-between items-center gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-bold text-slate-100">
+                                <span className="text-xs font-bold text-slate-900">
                                   {aluno.nome}
                                 </span>
                                 {expulso && (
-                                  <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-600 text-white">
+                                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-600 text-white">
                                     Expulso
                                   </span>
                                 )}
@@ -1031,19 +1037,19 @@ export default function SumulaDigitalPage({
                               <div className="flex items-center gap-1.5 text-[11px] font-bold">
                                 <span
                                   title="Gols nesta partida"
-                                  className="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-emerald-400"
+                                  className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-emerald-700"
                                 >
                                   ⚽ {golsJogo}
                                 </span>
                                 <span
                                   title="Cartões amarelos nesta partida"
-                                  className="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-amber-400"
+                                  className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-amber-700"
                                 >
                                   🟨 {amarelosJogo}/2
                                 </span>
                                 <span
                                   title="Cartões vermelhos nesta partida"
-                                  className="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-red-400"
+                                  className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-rose-700"
                                 >
                                   🟥 {vermelhosJogo}/1
                                 </span>
@@ -1051,40 +1057,40 @@ export default function SumulaDigitalPage({
                             </div>
 
                             {!partidaFinalizada && (
-                              <div className="no-print flex flex-wrap gap-2 pt-2 border-t border-slate-800/80 justify-end">
+                              <div className="no-print flex flex-wrap gap-2 pt-2.5 border-t border-slate-200/70 justify-end">
                                 {/* Controle de Gols */}
-                                <div className="flex items-center border border-emerald-700/60 rounded-lg bg-slate-900">
+                                <div className="flex items-center border border-emerald-200 rounded-xl bg-white overflow-hidden">
                                   <button
                                     disabled={processando || golsJogo === 0}
                                     onClick={() => removerEvento(aluno, "gol")}
-                                    className="px-2 py-0.5 text-xs text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-l-lg font-bold disabled:opacity-30"
+                                    className="px-2.5 py-1 text-xs text-emerald-700 hover:bg-emerald-600 hover:text-white font-black transition cursor-pointer disabled:opacity-30"
                                   >
                                     -
                                   </button>
-                                  <span className="px-2 text-[11px] font-bold text-emerald-300">
+                                  <span className="px-2 text-[11px] font-bold text-emerald-800">
                                     ⚽ Gol
                                   </span>
                                   <button
                                     disabled={processando}
                                     onClick={() => adicionarEvento(aluno, "gol")}
-                                    className="px-2 py-0.5 text-xs text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-r-lg font-bold disabled:opacity-30"
+                                    className="px-2.5 py-1 text-xs text-emerald-700 hover:bg-emerald-600 hover:text-white font-black transition cursor-pointer disabled:opacity-30"
                                   >
                                     +
                                   </button>
                                 </div>
 
                                 {/* Controle de Amarelo */}
-                                <div className="flex items-center border border-amber-700/60 rounded-lg bg-slate-900">
+                                <div className="flex items-center border border-amber-200 rounded-xl bg-white overflow-hidden">
                                   <button
                                     disabled={processando || amarelosJogo === 0}
                                     onClick={() =>
                                       removerEvento(aluno, "amarelo")
                                     }
-                                    className="px-2 py-0.5 text-xs text-amber-400 hover:bg-amber-400 hover:text-slate-950 rounded-l-lg font-bold disabled:opacity-30"
+                                    className="px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-400 hover:text-slate-950 font-black transition cursor-pointer disabled:opacity-30"
                                   >
                                     -
                                   </button>
-                                  <span className="px-2 text-[11px] font-bold text-amber-300">
+                                  <span className="px-2 text-[11px] font-bold text-amber-800">
                                     🟨
                                   </span>
                                   <button
@@ -1103,14 +1109,14 @@ export default function SumulaDigitalPage({
                                         ? "Aplicar 2º amarelo (gera vermelho automático e expulsão)"
                                         : "Aplicar 1º cartão amarelo"
                                     }
-                                    className="px-2 py-0.5 text-xs text-amber-400 hover:bg-amber-400 hover:text-slate-950 rounded-r-lg font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-400 hover:text-slate-950 font-black transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                   >
                                     +
                                   </button>
                                 </div>
 
                                 {/* Controle de Vermelho */}
-                                <div className="flex items-center border border-red-700/60 rounded-lg bg-slate-900">
+                                <div className="flex items-center border border-rose-200 rounded-xl bg-white overflow-hidden">
                                   <button
                                     disabled={
                                       processando ||
@@ -1125,11 +1131,11 @@ export default function SumulaDigitalPage({
                                         ? "Vermelho decorrente de 2 amarelos — remova o 2º amarelo para desfazer"
                                         : "Remover cartão vermelho"
                                     }
-                                    className="px-2 py-0.5 text-xs text-red-400 hover:bg-red-600 hover:text-white rounded-l-lg font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-600 hover:text-white font-black transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                   >
                                     -
                                   </button>
-                                  <span className="px-2 text-[11px] font-bold text-red-300">
+                                  <span className="px-2 text-[11px] font-bold text-rose-800">
                                     🟥
                                   </span>
                                   <button
@@ -1146,7 +1152,7 @@ export default function SumulaDigitalPage({
                                         ? "Aluno já foi expulso nesta partida"
                                         : "Aplicar cartão vermelho direto"
                                     }
-                                    className="px-2 py-0.5 text-xs text-red-400 hover:bg-red-600 hover:text-white rounded-r-lg font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-600 hover:text-white font-black transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                   >
                                     +
                                   </button>
@@ -1164,35 +1170,38 @@ export default function SumulaDigitalPage({
 
             {/* RELATÓRIO CRONOLÓGICO DE EVENTOS DA SÚMULA (Tela + Impressão) */}
             {eventos.length > 0 && (
-              <section className="print-card bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">
-                  Relatório de Ocorrências da Partida ({eventos.length})
-                </h3>
-                <div className="overflow-x-auto">
+              <section className="print-card bento-card p-5 sm:p-6 space-y-3">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#52657a]" />
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Relatório de Ocorrências da Partida ({eventos.length})
+                  </h3>
+                </div>
+                <div className="overflow-x-auto rounded-2xl border border-slate-200/90">
                   <table className="print-table w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-950 text-slate-400 uppercase font-bold border-b border-slate-800">
+                    <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200/90">
                       <tr>
-                        <th className="p-2 w-12 text-center">#</th>
-                        <th className="p-2">Ocorrência</th>
-                        <th className="p-2">Atleta</th>
-                        <th className="p-2">Equipe</th>
+                        <th className="p-3 w-12 text-center">#</th>
+                        <th className="p-3">Ocorrência</th>
+                        <th className="p-3">Atleta</th>
+                        <th className="p-3">Equipe</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/80">
+                    <tbody className="divide-y divide-slate-100 bg-white">
                       {eventos.map((ev, idx) => (
                         <tr key={ev.id}>
-                          <td className="p-2 text-center text-slate-400 font-bold">
+                          <td className="p-3 text-center text-slate-400 font-bold">
                             {idx + 1}
                           </td>
-                          <td className="p-2 font-bold">
+                          <td className="p-3 font-bold text-slate-800">
                             {ev.tipo === "gol" && "⚽ Gol"}
                             {ev.tipo === "amarelo" && "🟨 Cartão Amarelo"}
                             {ev.tipo === "vermelho" && "🟥 Cartão Vermelho"}
                           </td>
-                          <td className="p-2 font-bold text-slate-100">
+                          <td className="p-3 font-bold text-slate-900">
                             {getNomeAluno(ev.aluno_id)}
                           </td>
-                          <td className="p-2 text-slate-300">
+                          <td className="p-3 text-slate-600">
                             {getNomeEquipePorId(ev.equipe_id)}
                           </td>
                         </tr>
@@ -1205,20 +1214,23 @@ export default function SumulaDigitalPage({
           </>
         ) : (
           /* MÓDULO 2: SÚMULA COLETIVA (Vôlei / Queimada — Sem atletas nem cartões) */
-          <section className="print-card bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4">
+          <section className="print-card bento-card p-6 sm:p-8 text-center space-y-5">
             <div>
-              <h3 className="font-black text-sm text-amber-400 uppercase tracking-wide">
+              <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-[#52657a]/10 text-[#3b4b5e] px-3 py-1 rounded-full mb-2">
+                Modalidade Coletiva
+              </span>
+              <h3 className="font-black text-base text-slate-900 uppercase tracking-wide">
                 Súmula Coletiva —{" "}
                 {modalidade?.nome?.toUpperCase() || "MODALIDADE"}
               </h3>
-              <p className="no-print text-xs text-slate-400 mt-1">
+              <p className="no-print text-xs text-slate-500 mt-1">
                 Ajuste a pontuação ou sets conquistados por cada equipe durante a partida.
               </p>
             </div>
 
             <div className="no-print grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-2">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <p className="text-xs font-bold text-slate-300 mb-3 truncate">
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/90">
+                <p className="text-xs font-black text-slate-800 mb-3 truncate">
                   {equipeA?.nome || "Time A"}
                 </p>
                 <div className="flex items-center justify-center gap-4">
@@ -1227,25 +1239,25 @@ export default function SumulaDigitalPage({
                     onClick={() =>
                       atualizarPlacarDireto(Math.max(0, placarA - 1), placarB)
                     }
-                    className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-xl text-lg font-black disabled:opacity-40"
+                    className="w-11 h-11 bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 rounded-xl text-lg font-black transition cursor-pointer disabled:opacity-40"
                   >
                     -
                   </button>
-                  <span className="text-2xl font-black text-amber-400 w-8">
+                  <span className="text-3xl font-black text-slate-900 w-9">
                     {placarA}
                   </span>
                   <button
                     disabled={processando || partidaFinalizada}
                     onClick={() => atualizarPlacarDireto(placarA + 1, placarB)}
-                    className="w-10 h-10 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-lg font-black disabled:opacity-40"
+                    className="w-11 h-11 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl text-lg font-black shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-40"
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <p className="text-xs font-bold text-slate-300 mb-3 truncate">
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/90">
+                <p className="text-xs font-black text-slate-800 mb-3 truncate">
                   {equipeB?.nome || "Time B"}
                 </p>
                 <div className="flex items-center justify-center gap-4">
@@ -1254,17 +1266,17 @@ export default function SumulaDigitalPage({
                     onClick={() =>
                       atualizarPlacarDireto(placarA, Math.max(0, placarB - 1))
                     }
-                    className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-xl text-lg font-black disabled:opacity-40"
+                    className="w-11 h-11 bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 rounded-xl text-lg font-black transition cursor-pointer disabled:opacity-40"
                   >
                     -
                   </button>
-                  <span className="text-2xl font-black text-amber-400 w-8">
+                  <span className="text-3xl font-black text-slate-900 w-9">
                     {placarB}
                   </span>
                   <button
                     disabled={processando || partidaFinalizada}
                     onClick={() => atualizarPlacarDireto(placarA, placarB + 1)}
-                    className="w-10 h-10 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-lg font-black disabled:opacity-40"
+                    className="w-11 h-11 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl text-lg font-black shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-40"
                   >
                     +
                   </button>
@@ -1304,33 +1316,33 @@ export default function SumulaDigitalPage({
 
       {/* MODAL DE CONFIRMAÇÃO DE FINALIZAÇÃO */}
       {mostrarModalFinalizar && (
-        <div className="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4 text-center">
-            <h3 className="text-lg font-black text-slate-100">
+        <div className="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bento-card p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4 text-center">
+            <h3 className="text-lg font-black text-slate-900">
               Finalizar partida?
             </h3>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Placar Final:{" "}
-              <strong className="text-amber-400">
-                {equipeA?.nome} {placarA} x {placarB} {equipeB?.nome}
+              <strong className="text-slate-900">
+                {equipeA?.nome} <span className="text-[#f06449]">{placarA} x {placarB}</span> {equipeB?.nome}
               </strong>
             </p>
 
             {/* SEÇÃO OBRIGATÓRIA DE DESEMPATE SE FOR ELIMINATÓRIA EMPATADA */}
             {ehEliminatoria && ehEmpate && (
-              <div className="bg-amber-950/40 border border-amber-500/60 p-4 rounded-xl text-left space-y-2">
-                <p className="text-xs font-bold text-amber-300 text-center">
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-left space-y-2.5">
+                <p className="text-xs font-bold text-amber-900 text-center">
                   Partida eliminatória empatada — selecione o vencedor do desempate:
                 </p>
                 <div className="flex flex-col gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => setVencedorPenaltisId(equipeA?.id || null)}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold border transition ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       vencedorPenaltisId === equipeA?.id
-                        ? "bg-amber-400 text-slate-950 border-amber-300 font-black"
-                        : "bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800"
+                        ? "bg-[#f06449] text-white border-[#f06449] font-black shadow-xs"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                     }`}
                   >
                     {vencedorPenaltisId === equipeA?.id ? "✓ " : ""}
@@ -1340,10 +1352,10 @@ export default function SumulaDigitalPage({
                   <button
                     type="button"
                     onClick={() => setVencedorPenaltisId(equipeB?.id || null)}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold border transition ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       vencedorPenaltisId === equipeB?.id
-                        ? "bg-amber-400 text-slate-950 border-amber-300 font-black"
-                        : "bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800"
+                        ? "bg-[#f06449] text-white border-[#f06449] font-black shadow-xs"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                     }`}
                   >
                     {vencedorPenaltisId === equipeB?.id ? "✓ " : ""}
@@ -1353,7 +1365,7 @@ export default function SumulaDigitalPage({
               </div>
             )}
 
-            <p className="text-[11px] text-red-400 font-semibold">
+            <p className="text-[11px] text-rose-600 font-bold">
               Após finalizar, a súmula será bloqueada e não será mais possível alterar o placar ou eventos.
             </p>
 
@@ -1361,7 +1373,7 @@ export default function SumulaDigitalPage({
               <button
                 disabled={processando}
                 onClick={() => setMostrarModalFinalizar(false)}
-                className="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition disabled:opacity-50"
+                className="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold transition cursor-pointer disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -1370,7 +1382,7 @@ export default function SumulaDigitalPage({
                 onClick={() =>
                   executarMudancaStatus("finalizada", vencedorPenaltisId)
                 }
-                className="w-1/2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition disabled:opacity-50"
+                className="w-1/2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs shadow-emerald-600/25 transition cursor-pointer disabled:opacity-50"
               >
                 {processando ? "Finalizando..." : "Sim, Finalizar"}
               </button>

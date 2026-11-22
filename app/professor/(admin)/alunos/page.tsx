@@ -195,24 +195,42 @@ export default function GerenciarAlunos() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-        <h1 className="text-2xl font-black text-amber-400">Atletas (Futsal)</h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Vincule atletas às equipes de Futsal para controle de artilharia e cartões.
-        </p>
+    <div className="max-w-6xl mx-auto space-y-5">
+      {/* HERO TÁTICO BENTO */}
+      <div className="bento-hero court-grid-bg p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full mb-2">
+            Modalidade Futsal
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Atletas (Futsal)
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
+            Vincule atletas às equipes de Futsal para controle de artilharia e cartões.
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2.5 rounded-2xl self-start sm:self-center">
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-200/80">
+            Total Inscritos
+          </span>
+          <span className="text-lg font-black text-white">{alunosFiltrados.length}</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
         {/* Formulário */}
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-          <h2 className="text-sm font-black uppercase tracking-wider text-amber-400 mb-4">
-            Cadastrar Atleta
-          </h2>
+        <div className="bento-card p-6">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3.5 mb-5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
+              Cadastrar Atleta
+            </h2>
+          </div>
 
           <form onSubmit={handleCadastrarAluno} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Nome do Atleta
               </label>
               <input
@@ -220,13 +238,13 @@ export default function GerenciarAlunos() {
                 value={nomeAluno}
                 onChange={(e) => setNomeAluno(e.target.value)}
                 placeholder="Ex: João Silva"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Turma / Série
               </label>
               <input
@@ -234,18 +252,19 @@ export default function GerenciarAlunos() {
                 value={turma}
                 onChange={(e) => setTurma(e.target.value)}
                 placeholder="Ex: 3º A"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Equipe de Futsal
               </label>
               <select
+                suppressHydrationWarning
                 value={equipeSelecionada}
                 onChange={(e) => setEquipeSelecionada(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition cursor-pointer"
                 required
               >
                 <option value="">Selecione a equipe...</option>
@@ -256,7 +275,7 @@ export default function GerenciarAlunos() {
                 ))}
               </select>
               {!carregando && equipesFutsal.length === 0 && (
-                <p className="text-xs text-amber-400 mt-1.5">
+                <p className="text-xs text-[#e05338] font-semibold mt-1.5">
                   Cadastre uma equipe de Futsal primeiro.
                 </p>
               )}
@@ -265,7 +284,7 @@ export default function GerenciarAlunos() {
             <button
               type="submit"
               disabled={salvando || equipesFutsal.length === 0}
-              className="w-full font-black py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs transition mt-2 disabled:opacity-50"
+              className="w-full font-black py-3 px-4 rounded-xl bg-[#f06449] hover:bg-[#e05338] text-white text-xs shadow-xs shadow-[#f06449]/30 transition mt-2 cursor-pointer disabled:opacity-50"
             >
               {salvando ? "Salvando..." : "Cadastrar Atleta"}
             </button>
@@ -273,9 +292,9 @@ export default function GerenciarAlunos() {
         </div>
 
         {/* Listagem */}
-        <div className="lg:col-span-2 bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h2 className="text-sm font-black uppercase tracking-wider text-slate-200">
+        <div className="lg:col-span-2 bento-card p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
               Atletas Cadastrados ({alunosFiltrados.length})
             </h2>
           </div>
@@ -285,15 +304,15 @@ export default function GerenciarAlunos() {
             placeholder="Buscar por nome, turma ou equipe..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950 text-slate-100 border border-slate-800 focus:outline-none focus:border-amber-400"
+            className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 focus:bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:border-[#52657a] transition"
           />
 
           {carregando ? (
-            <p className="text-slate-400 text-xs font-bold animate-pulse py-6 text-center">
+            <p className="text-slate-500 text-xs font-bold animate-pulse py-8 text-center">
               Carregando atletas...
             </p>
           ) : alunosFiltrados.length === 0 ? (
-            <p className="text-slate-500 text-xs italic py-8 text-center">
+            <p className="text-slate-500 text-xs italic py-10 text-center">
               Nenhum atleta encontrado.
             </p>
           ) : (
@@ -308,35 +327,35 @@ export default function GerenciarAlunos() {
                 return (
                   <li
                     key={al.id}
-                    className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-3"
+                    className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 flex items-center justify-between gap-3"
                   >
                     <div className="min-w-0">
-                      <span className="font-bold text-sm text-slate-100 block truncate">
+                      <span className="font-bold text-sm text-slate-900 block truncate">
                         {al.nome}
                       </span>
-                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-900 text-amber-400 border border-slate-800">
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-[#52657a]/12 text-[#3b4b5e]">
                           {equipe?.nome || "Sem equipe"}
                         </span>
                         {al.turma && (
-                          <span className="text-[11px] px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-white text-slate-600 border border-slate-200/80">
                             {al.turma}
                           </span>
                         )}
                         {temStats && (
                           <>
                             {(al.gols ?? 0) > 0 && (
-                              <span className="bg-emerald-950/60 text-emerald-400 text-[11px] font-bold px-2 py-0.5 rounded border border-emerald-800/60">
+                              <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-lg border border-emerald-200">
                                 ⚽ {al.gols}
                               </span>
                             )}
                             {(al.cartoes_amarelos ?? 0) > 0 && (
-                              <span className="bg-amber-950/60 text-amber-400 text-[11px] font-bold px-2 py-0.5 rounded border border-amber-800/60">
+                              <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-lg border border-amber-200">
                                 🟨 {al.cartoes_amarelos}
                               </span>
                             )}
                             {(al.cartoes_vermelhos ?? 0) > 0 && (
-                              <span className="bg-red-950/60 text-red-400 text-[11px] font-bold px-2 py-0.5 rounded border border-red-800/60">
+                              <span className="bg-rose-50 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-lg border border-rose-200">
                                 🟥 {al.cartoes_vermelhos}
                               </span>
                             )}
@@ -347,7 +366,7 @@ export default function GerenciarAlunos() {
 
                     <button
                       onClick={() => setAlunoParaExcluir(al)}
-                      className="px-3 py-1.5 text-xs bg-red-950/60 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/60 font-bold rounded-lg transition shrink-0"
+                      className="px-3 py-1.5 text-xs bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 font-bold rounded-xl transition shrink-0 cursor-pointer"
                     >
                       Excluir
                     </button>

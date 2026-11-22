@@ -307,40 +307,50 @@ export default function ChaveamentoPage() {
     gruposConfronto.find((g) => g.id.toString() === grupoId)?.nome || "";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-6xl mx-auto space-y-5">
+      {/* HERO TÁTICO BENTO */}
+      <div className="bento-hero court-grid-bg p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-amber-400">Chaveamento</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full mb-2">
+            Sorteio & Rodadas
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Chaveamento
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
             Sorteie os confrontos iniciais por modalidade e categoria.
           </p>
         </div>
 
         <Link
           href="/professor/partidas"
-          className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition text-center"
+          className="px-4 py-2.5 rounded-2xl bg-white/12 hover:bg-white/20 text-white border border-white/20 text-xs font-bold transition text-center self-start sm:self-center"
         >
           Ir para Partidas & Súmulas →
         </Link>
       </div>
 
       {carregando ? (
-        <div className="text-center py-12 text-slate-400 text-sm font-bold animate-pulse">
+        <div className="bento-card text-center py-14 text-slate-500 text-sm font-bold animate-pulse">
           Carregando configurações...
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
           {/* Configuração do Sorteio */}
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-            <h2 className="text-sm font-black uppercase tracking-wider text-amber-400">
-              Configuração
-            </h2>
+          <div className="bento-card p-6 space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
+                Configuração
+              </h2>
+            </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Modalidade
               </label>
               <select
+                suppressHydrationWarning
                 value={modalidadeId}
                 onChange={(e) => {
                   const novoMod = e.target.value;
@@ -348,7 +358,7 @@ export default function ChaveamentoPage() {
                   setConfrontosGerados([]);
                   verificarPartidasExistentes(novoMod, grupoId);
                 }}
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-amber-400"
+                className="w-full bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#52657a] transition cursor-pointer"
               >
                 {modalidades.map((mod) => (
                   <option key={mod.id} value={mod.id}>
@@ -359,10 +369,11 @@ export default function ChaveamentoPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Grupo / Categoria
               </label>
               <select
+                suppressHydrationWarning
                 value={grupoId}
                 onChange={(e) => {
                   const novoGrp = e.target.value;
@@ -370,7 +381,7 @@ export default function ChaveamentoPage() {
                   setConfrontosGerados([]);
                   verificarPartidasExistentes(modalidadeId, novoGrp);
                 }}
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-amber-400"
+                className="w-full bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#52657a] transition cursor-pointer"
               >
                 {gruposConfronto.map((grp) => (
                   <option key={grp.id} value={grp.id}>
@@ -383,20 +394,20 @@ export default function ChaveamentoPage() {
             <button
               type="button"
               onClick={handleSortearChaveamento}
-              className="w-full font-black py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs transition"
+              className="w-full font-black py-3 px-4 rounded-xl bg-[#f06449] hover:bg-[#e05338] text-white text-xs shadow-xs shadow-[#f06449]/30 transition cursor-pointer"
             >
               Sortear Confrontos
             </button>
 
             {qtdExistenteCategoria > 0 && (
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-medium text-slate-500">
                   {qtdExistenteCategoria} jogo(s) ativo(s) neste grupo
                 </span>
                 <button
                   type="button"
                   onClick={() => setModalLimparCategoria(true)}
-                  className="text-[11px] font-bold text-red-400 hover:text-red-300"
+                  className="text-[11px] font-bold text-rose-600 hover:text-rose-700 cursor-pointer"
                 >
                   Limpar grupo
                 </button>
@@ -405,9 +416,9 @@ export default function ChaveamentoPage() {
           </div>
 
           {/* Prévia dos Confrontos Sorteados */}
-          <div className="lg:col-span-2 bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-black uppercase tracking-wider text-slate-200">
+          <div className="lg:col-span-2 bento-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
                 Prévia do Sorteio
               </h2>
 
@@ -416,7 +427,7 @@ export default function ChaveamentoPage() {
                   type="button"
                   onClick={iniciarSalvamento}
                   disabled={salvando}
-                  className="font-black py-2 px-4 text-xs rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition disabled:opacity-50"
+                  className="font-black py-2 px-4 text-xs rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs shadow-emerald-600/25 transition cursor-pointer disabled:opacity-50"
                 >
                   {salvando ? "Salvando..." : "Confirmar e Salvar"}
                 </button>
@@ -424,7 +435,7 @@ export default function ChaveamentoPage() {
             </div>
 
             {confrontosGerados.length === 0 ? (
-              <p className="text-xs text-slate-500 py-10 text-center italic">
+              <p className="text-xs text-slate-500 py-12 text-center italic">
                 Selecione a modalidade e o grupo e clique em &ldquo;Sortear Confrontos&rdquo;.
               </p>
             ) : (
@@ -432,7 +443,7 @@ export default function ChaveamentoPage() {
                 {confrontosGerados.map((partida, index) => (
                   <div
                     key={index}
-                    className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs gap-3"
+                    className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 flex items-center justify-between text-xs gap-3"
                   >
                     <span className="font-bold text-slate-400 shrink-0">
                       {partida.fase === "MELHOR_DE_3"
@@ -440,13 +451,13 @@ export default function ChaveamentoPage() {
                         : `#${index + 1}`}
                     </span>
 
-                    <div className="flex items-center gap-3 font-bold text-slate-100">
+                    <div className="flex items-center gap-3 font-bold text-slate-900">
                       <span>{partida.nome_equipe_a}</span>
-                      <span className="text-amber-400 text-[11px]">VS</span>
+                      <span className="text-[#f06449] font-black text-[11px]">VS</span>
                       <span>{partida.nome_equipe_b}</span>
                     </div>
 
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded bg-slate-900 text-amber-400 border border-slate-800 shrink-0">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-[#52657a]/12 text-[#3b4b5e] shrink-0">
                       {partida.fase === "MELHOR_DE_3" ? "Melhor de 3" : "Fase de Grupos"}
                     </span>
                   </div>

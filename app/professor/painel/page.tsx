@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { logout, verificarSessaoAtiva } from "@/lib/auth";
+import QrCodeAluno from "@/app/components/QrCodeAluno";
 
 interface Modalidade {
   id: number;
@@ -160,20 +161,18 @@ export default function PainelProfessorPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row w-full">
+    <div className="min-h-screen bg-[#eef2f6] text-slate-900 flex flex-col md:flex-row w-full">
       {/* SIDEBAR DESKTOP */}
-      <aside className="hidden md:flex flex-col w-64 min-w-[16rem] shrink-0 bg-slate-900 border-r border-slate-800 p-5 justify-between h-screen sticky top-0 z-40">
+      <aside className="no-print hidden md:flex flex-col w-64 min-w-[16rem] shrink-0 bg-white border-r border-slate-200/90 p-5 justify-between h-screen sticky top-0 z-40">
         <div className="space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-xl font-black text-amber-400 tracking-wider">
-              PROJETO JUNO
-            </h2>
-            <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">
+          <div className="border-b border-slate-100 pb-4 flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+            <p className="text-xs uppercase font-black tracking-wider text-slate-700">
               Painel do Professor
             </p>
           </div>
 
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {menuItems.map((item) => {
               if (item.external) {
                 return (
@@ -182,10 +181,10 @@ export default function PainelProfessorPage() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition"
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
                   >
                     <span>{item.label}</span>
-                    <span className="text-[11px] text-amber-400 font-normal">
+                    <span className="text-[11px] text-[#f06449] font-black">
                       ↗
                     </span>
                   </a>
@@ -198,8 +197,8 @@ export default function PainelProfessorPage() {
                   href={item.href}
                   className={`flex items-center px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
                     item.ativo
-                      ? "bg-amber-400 text-slate-950 font-black"
-                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                      ? "bg-[#f06449] text-white font-black shadow-xs shadow-[#f06449]/30"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   <span>{item.label}</span>
@@ -209,12 +208,12 @@ export default function PainelProfessorPage() {
           </nav>
         </div>
 
-        <div className="border-t border-slate-800 pt-4">
+        <div className="border-t border-slate-100 pt-4">
           <button
             type="button"
             disabled={saindo}
             onClick={handleSair}
-            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-bold text-red-400 hover:bg-red-950/40 hover:text-red-300 transition disabled:opacity-50"
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer disabled:opacity-50"
           >
             <span>{saindo ? "Saindo..." : "Sair do Sistema"}</span>
           </button>
@@ -222,24 +221,24 @@ export default function PainelProfessorPage() {
       </aside>
 
       {/* HEADER MOBILE */}
-      <header className="md:hidden bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50">
+      <header className="no-print md:hidden bg-white border-b border-slate-200/90 p-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-black text-amber-400">PROJETO JUNO</h2>
-            <p className="text-[10px] font-bold text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+            <p className="text-xs font-black uppercase tracking-wider text-slate-800">
               Painel do Professor
             </p>
           </div>
           <button
             onClick={() => setMenuMobileAberto(!menuMobileAberto)}
-            className="px-3 py-1.5 bg-slate-800 rounded-lg text-slate-200 text-xs font-bold border border-slate-700"
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200/70 rounded-xl text-slate-800 text-xs font-bold border border-slate-200/80"
           >
             {menuMobileAberto ? "Fechar" : "Menu"}
           </button>
         </div>
 
         {menuMobileAberto && (
-          <nav className="mt-4 pt-4 border-t border-slate-800 space-y-1">
+          <nav className="mt-4 pt-4 border-t border-slate-100 space-y-1">
             {menuItems.map((item) => {
               if (item.external) {
                 return (
@@ -249,10 +248,12 @@ export default function PainelProfessorPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setMenuMobileAberto(false)}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-800"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
                   >
                     <span>{item.label}</span>
-                    <span className="text-[11px] text-amber-400">↗</span>
+                    <span className="text-[11px] text-[#f06449] font-black">
+                      ↗
+                    </span>
                   </a>
                 );
               }
@@ -262,22 +263,22 @@ export default function PainelProfessorPage() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuMobileAberto(false)}
-                  className={`flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition ${
+                  className={`flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition ${
                     item.ativo
-                      ? "bg-amber-400 text-slate-950 font-black"
-                      : "text-slate-300 hover:bg-slate-800"
+                      ? "bg-[#f06449] text-white font-black"
+                      : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
                   <span>{item.label}</span>
                 </Link>
               );
             })}
-            <div className="pt-2 border-t border-slate-800 mt-2">
+            <div className="pt-2 border-t border-slate-100 mt-2">
               <button
                 type="button"
                 disabled={saindo}
                 onClick={handleSair}
-                className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-red-400 hover:bg-red-950/30 disabled:opacity-50"
+                className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 disabled:opacity-50"
               >
                 {saindo ? "Saindo..." : "Sair do Sistema"}
               </button>
@@ -287,150 +288,159 @@ export default function PainelProfessorPage() {
       </header>
 
       {/* ÁREA PRINCIPAL */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-        <div className="max-w-6xl mx-auto w-full space-y-6">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-            <h1 className="text-2xl font-black text-slate-100">
+      <main className="print-container flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
+        <div className="max-w-6xl mx-auto w-full space-y-5">
+          {/* HERO TÁTICO BENTO */}
+          <div className="no-print bento-hero court-grid-bg p-6 sm:p-8">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Olá, Professor
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Resumo geral e acompanhamento das próximas partidas do torneio.
+            <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
+              Resumo geral, andamento das partidas e cartaz de acesso público do torneio.
             </p>
           </div>
 
           {carregando ? (
-            <div className="py-16 text-center text-slate-400 font-bold text-sm animate-pulse">
+            <div className="no-print bento-card py-16 text-center text-slate-500 font-bold text-sm animate-pulse">
               Carregando indicadores...
             </div>
           ) : (
             <>
               {/* INDICADORES PRINCIPAIS */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                  <span className="text-xs font-bold text-slate-400 block">
+              <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bento-card p-5 sm:p-6">
+                  <span className="text-xs font-bold text-slate-500 block">
                     Alunos Cadastrados
                   </span>
-                  <p className="text-3xl font-black text-amber-400 mt-2">
+                  <p className="text-3xl font-black text-slate-900 mt-2">
                     {totalAlunos}
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                  <span className="text-xs font-bold text-slate-400 block">
+                <div className="bento-card p-5 sm:p-6">
+                  <span className="text-xs font-bold text-slate-500 block">
                     Equipes Inscritas
                   </span>
-                  <p className="text-3xl font-black text-amber-400 mt-2">
+                  <p className="text-3xl font-black text-[#e05338] mt-2">
                     {totalEquipes}
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <div className="bento-card p-5 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">
+                    <span className="text-xs font-bold text-slate-500">
                       Andamento dos Jogos
                     </span>
-                    <span className="text-xs font-black text-amber-400">
+                    <span className="text-xs font-black text-[#52657a] bg-slate-100 px-2.5 py-0.5 rounded-full">
                       {percentualConcluido}%
                     </span>
                   </div>
-                  <p className="text-2xl font-black text-slate-100 mt-2">
+                  <p className="text-2xl font-black text-slate-900 mt-2">
                     {totalFinalizadas}
-                    <span className="text-sm font-bold text-slate-500">
+                    <span className="text-sm font-bold text-slate-400">
                       /{totalPartidas} concluídas
                     </span>
                   </p>
-                  <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden mt-3 border border-slate-800">
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-3">
                     <div
-                      className="h-full bg-amber-400 transition-all duration-500"
+                      className="h-full bg-[#f06449] rounded-full transition-all duration-500"
                       style={{ width: `${percentualConcluido}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* PRÓXIMAS PARTIDAS AGENDADAS */}
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-sm font-black uppercase tracking-wider text-amber-400">
-                      Próximas Partidas
-                    </h2>
-                    {totalEmAndamento > 0 && (
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-950/60 text-amber-400 border border-amber-700/60">
-                        {totalEmAndamento} em andamento
-                      </span>
-                    )}
+              {/* GRID BENTO: PRÓXIMAS PARTIDAS + CARTAZ QR CODE */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                {/* PRÓXIMAS PARTIDAS AGENDADAS */}
+                <div className="no-print lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-3.5">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
+                        Próximas Partidas
+                      </h2>
+                      {totalEmAndamento > 0 && (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#f06449]/15 text-[#e05338]">
+                          {totalEmAndamento} em andamento
+                        </span>
+                      )}
+                    </div>
+
+                    <Link
+                      href="/professor/partidas"
+                      className="text-xs font-bold text-[#52657a] hover:text-[#e05338] transition"
+                    >
+                      Ver todas →
+                    </Link>
                   </div>
 
-                  <Link
-                    href="/professor/partidas"
-                    className="text-xs font-bold text-slate-400 hover:text-amber-400 transition"
-                  >
-                    Ver todas →
-                  </Link>
+                  {proximosJogos.length === 0 ? (
+                    <p className="text-xs text-slate-500 py-10 text-center italic">
+                      Nenhuma partida agendada ou em andamento no momento.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {proximosJogos.map((jogo) => {
+                        const modNome = getNomeModalidade(jogo.modalidade_id);
+                        const emAndamento = jogo.status === "em_andamento";
+
+                        return (
+                          <div
+                            key={jogo.id}
+                            className="bg-slate-50/90 border border-slate-200/90 p-4 rounded-2xl flex items-center justify-between gap-3"
+                          >
+                            <div className="min-w-0 space-y-1.5">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {modNome && (
+                                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-white text-[#3b4b5e] border border-slate-200">
+                                    {modNome}
+                                  </span>
+                                )}
+                                <span className="text-[10px] font-bold text-slate-500">
+                                  {formatarFase(jogo.fase, jogo.ordem)}
+                                </span>
+                                {emAndamento && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f06449]/15 text-[#e05338]">
+                                    Ao vivo
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5 truncate">
+                                <span className="truncate">
+                                  {getNomeEquipe(jogo.time_a_id)}
+                                </span>
+                                <span className="text-[#f06449] font-black text-xs shrink-0">
+                                  vs
+                                </span>
+                                <span className="truncate">
+                                  {getNomeEquipe(jogo.time_b_id)}
+                                </span>
+                              </div>
+
+                              <div className="text-[11px] text-slate-500 flex flex-wrap gap-2">
+                                <span>{formatarHorario(jogo.horario)}</span>
+                                {jogo.local && <span>• {jogo.local}</span>}
+                              </div>
+                            </div>
+
+                            <Link
+                              href={`/professor/sumula/${jogo.id}`}
+                              className="px-3.5 py-2 bg-[#f06449] hover:bg-[#e05338] text-white text-xs rounded-xl font-black transition shrink-0 shadow-xs shadow-[#f06449]/25"
+                            >
+                              Súmula
+                            </Link>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {proximosJogos.length === 0 ? (
-                  <p className="text-xs text-slate-500 py-8 text-center italic">
-                    Nenhuma partida agendada ou em andamento no momento.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {proximosJogos.map((jogo) => {
-                      const modNome = getNomeModalidade(jogo.modalidade_id);
-                      const emAndamento = jogo.status === "em_andamento";
-
-                      return (
-                        <div
-                          key={jogo.id}
-                          className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-3"
-                        >
-                          <div className="min-w-0 space-y-1.5">
-                            <div className="flex flex-wrap items-center gap-2">
-                              {modNome && (
-                                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-900 text-amber-400 border border-slate-800">
-                                  {modNome}
-                                </span>
-                              )}
-                              <span className="text-[10px] font-bold text-slate-400">
-                                {formatarFase(jogo.fase, jogo.ordem)}
-                              </span>
-                              {emAndamento && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950/60 text-amber-400 border border-amber-800/70">
-                                  Em andamento
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="text-sm font-bold text-slate-100 flex items-center gap-2 truncate">
-                              <span className="truncate">
-                                {getNomeEquipe(jogo.time_a_id)}
-                              </span>
-                              <span className="text-amber-400 font-black text-xs">
-                                vs
-                              </span>
-                              <span className="truncate">
-                                {getNomeEquipe(jogo.time_b_id)}
-                              </span>
-                            </div>
-
-                            <div className="text-[11px] text-slate-500 flex flex-wrap gap-3">
-                              <span>{formatarHorario(jogo.horario)}</span>
-                              {jogo.local && <span>• {jogo.local}</span>}
-                            </div>
-                          </div>
-
-                          <Link
-                            href={`/professor/sumula/${jogo.id}`}
-                            className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs rounded-xl font-black transition shrink-0"
-                          >
-                            Súmula
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* CARTAZ QR CODE ÁREA PÚBLICA */}
+                <div className="lg:col-span-4">
+                  <QrCodeAluno />
+                </div>
               </div>
             </>
           )}

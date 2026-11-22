@@ -7,7 +7,6 @@ export default function QrCodeAluno() {
   const [urlCompleta, setUrlCompleta] = useState("");
 
   useEffect(() => {
-    // Pega o domínio automaticamente (localhost ou site publicado)
     if (typeof window !== "undefined") {
       const meuIpLocal = "192.168.1.74";
       const porta = "3000";
@@ -26,34 +25,38 @@ export default function QrCodeAluno() {
   if (!urlCompleta) return null;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4 max-w-sm mx-auto my-6 print:border-none print:bg-white print:text-black">
-      <div className="space-y-1">
-        <h2 className="text-lg font-black text-amber-400 print:text-black">
-          📱 Área do Aluno
+    <div className="bento-card print-card p-6 text-center space-y-4 w-full">
+      <div className="space-y-1.5">
+        <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-[#f06449]/10 text-[#e05338] px-3 py-1 rounded-full">
+          Acesso Público • QR Code
+        </span>
+        <h2 className="text-lg font-black text-slate-900">
+          Área do Aluno
         </h2>
-        <p className="text-xs text-slate-400 print:text-slate-700">
-          Escaneie o QR Code para ver tabelas, artilharia e jogos em tempo real.
+        <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+          Escaneie o código abaixo com a câmera do celular para acompanhar tabelas, artilharia e jogos ao vivo.
         </p>
       </div>
 
-      <div className="flex justify-center p-4 bg-white rounded-xl print:p-0">
+      <div className="inline-flex justify-center p-4 bg-slate-50 border border-slate-200/80 rounded-2xl print:border-none print:bg-white print:p-0">
         <QRCodeSVG
           value={urlCompleta}
-          size={200}
-          bgColor={"#ffffff"}
-          fgColor={"#000000"}
-          level={"L"}
+          size={190}
+          bgColor="#ffffff"
+          fgColor="#0f172a"
+          level="M"
           includeMargin={false}
         />
       </div>
 
-      <p className="text-[11px] text-slate-500 break-all print:text-slate-800 font-mono">
+      <p className="text-[11px] text-slate-500 break-all font-mono bg-slate-50 py-1.5 px-3 rounded-xl border border-slate-200/70 print:border-none print:bg-transparent">
         {urlCompleta}
       </p>
 
       <button
+        type="button"
         onClick={handleImprimir}
-        className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-lg print:hidden"
+        className="no-print w-full py-3 px-4 bg-[#52657a] hover:bg-[#3b4b5e] text-white font-black text-xs rounded-xl transition shadow-xs cursor-pointer"
       >
         🖨️ Imprimir Cartaz do QR Code
       </button>

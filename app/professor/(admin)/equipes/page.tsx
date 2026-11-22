@@ -197,29 +197,47 @@ export default function GerenciarEquipes() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-        <h1 className="text-2xl font-black text-amber-400">Gerenciar Equipes</h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Cadastre e organize as equipes por modalidade e categoria.
-        </p>
+    <div className="max-w-6xl mx-auto space-y-5">
+      {/* HERO TÁTICO BENTO */}
+      <div className="bento-hero court-grid-bg p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full mb-2">
+            Cadastro & Categorias
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Gerenciar Equipes
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
+            Cadastre e organize as equipes por modalidade e categoria.
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2.5 rounded-2xl self-start sm:self-center">
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-200/80">
+            Total Exibido
+          </span>
+          <span className="text-lg font-black text-white">{equipesFiltradas.length}</span>
+        </div>
       </div>
 
       {carregando ? (
-        <div className="text-center py-12 text-slate-400 text-sm font-bold animate-pulse">
+        <div className="bento-card text-center py-14 text-slate-500 text-sm font-bold animate-pulse">
           Carregando equipes...
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
           {/* Formulário */}
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-            <h2 className="text-sm font-black uppercase tracking-wider text-amber-400 mb-4">
-              {equipeEmEdicao ? "Editar Equipe" : "Nova Equipe"}
-            </h2>
+          <div className="bento-card p-6">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3.5 mb-5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
+                {equipeEmEdicao ? "Editar Equipe" : "Nova Equipe"}
+              </h2>
+            </div>
 
             <form onSubmit={handleCadastrar} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Nome da Equipe
                 </label>
                 <input
@@ -227,18 +245,19 @@ export default function GerenciarEquipes() {
                   placeholder="Ex: 3º Ano A"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Modalidade
                 </label>
                 <select
+                  suppressHydrationWarning
                   value={modalidadeId}
                   onChange={(e) => setModalidadeId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition cursor-pointer"
                 >
                   {modalidades.map((mod) => (
                     <option key={mod.id} value={mod.id}>
@@ -249,13 +268,14 @@ export default function GerenciarEquipes() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Grupo / Categoria
                 </label>
                 <select
+                  suppressHydrationWarning
                   value={grupoId}
                   onChange={(e) => setGrupoId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 text-slate-100 text-sm border border-slate-800 focus:outline-none focus:border-amber-400"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-900 text-sm border border-slate-200 focus:outline-none focus:border-[#52657a] transition cursor-pointer"
                 >
                   {gruposConfronto.map((grp) => (
                     <option key={grp.id} value={grp.id}>
@@ -269,7 +289,7 @@ export default function GerenciarEquipes() {
                 <button
                   type="submit"
                   disabled={salvando}
-                  className="flex-1 font-black py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs transition disabled:opacity-50"
+                  className="flex-1 font-black py-3 px-4 rounded-xl bg-[#f06449] hover:bg-[#e05338] text-white text-xs shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-50"
                 >
                   {salvando
                     ? "Salvando..."
@@ -282,7 +302,7 @@ export default function GerenciarEquipes() {
                   <button
                     type="button"
                     onClick={handleCancelarEdicao}
-                    className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition"
+                    className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold transition cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -292,19 +312,20 @@ export default function GerenciarEquipes() {
           </div>
 
           {/* Lista de Equipes */}
-          <div className="lg:col-span-2 bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-black uppercase tracking-wider text-slate-200">
+          <div className="lg:col-span-2 bento-card p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-800">
                 Equipes Cadastradas ({equipesFiltradas.length})
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <select
+                suppressHydrationWarning
                 value={filtroModalidade}
                 onChange={(e) => setFiltroModalidade(e.target.value)}
                 aria-label="Filtrar por Modalidade"
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 text-slate-200 border border-slate-800 focus:outline-none focus:border-amber-400 text-xs font-bold"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-800 border border-slate-200 focus:outline-none focus:border-[#52657a] text-xs font-bold transition cursor-pointer"
               >
                 <option value="TODAS">Todas as Modalidades</option>
                 {modalidades.map((mod) => (
@@ -315,10 +336,11 @@ export default function GerenciarEquipes() {
               </select>
 
               <select
+                suppressHydrationWarning
                 value={filtroGrupo}
                 onChange={(e) => setFiltroGrupo(e.target.value)}
                 aria-label="Filtrar por Grupo"
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 text-slate-200 border border-slate-800 focus:outline-none focus:border-amber-400 text-xs font-bold"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 focus:bg-white text-slate-800 border border-slate-200 focus:outline-none focus:border-[#52657a] text-xs font-bold transition cursor-pointer"
               >
                 <option value="TODOS">Todos os Grupos</option>
                 {gruposConfronto.map((grp) => (
@@ -330,7 +352,7 @@ export default function GerenciarEquipes() {
             </div>
 
             {equipesFiltradas.length === 0 ? (
-              <p className="text-slate-500 py-8 text-center italic text-xs">
+              <p className="text-slate-500 py-10 text-center italic text-xs">
                 Nenhuma equipe encontrada para os filtros selecionados.
               </p>
             ) : (
@@ -339,21 +361,26 @@ export default function GerenciarEquipes() {
                   const idMod = eq.modalidades_id || eq.modalidade_id;
                   const idGrp =
                     eq.grupo_id || eq.grupo_confronto_id || eq.grupos_confronto_id;
+                  const emEdicaoAtual = equipeEmEdicao?.id === eq.id;
 
                   return (
                     <div
                       key={eq.id}
-                      className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-3"
+                      className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition ${
+                        emEdicaoAtual
+                          ? "bg-[#f06449]/5 border-[#f06449]/40"
+                          : "bg-slate-50/90 border-slate-200/90"
+                      }`}
                     >
                       <div className="min-w-0">
-                        <h3 className="font-bold text-sm text-slate-100 truncate">
+                        <h3 className="font-bold text-sm text-slate-900 truncate">
                           {eq.nome}
                         </h3>
-                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-900 text-amber-400 border border-slate-800">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-[#52657a]/12 text-[#3b4b5e]">
                             {getNomeModalidade(idMod)}
                           </span>
-                          <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-white text-slate-600 border border-slate-200/80">
                             {getNomeGrupo(idGrp)}
                           </span>
                         </div>
@@ -362,13 +389,13 @@ export default function GerenciarEquipes() {
                       <div className="flex gap-2 shrink-0">
                         <button
                           onClick={() => handleIniciarEdicao(eq)}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs font-bold rounded-lg transition"
+                          className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3b4b5e] border border-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => setEquipeParaExcluir(eq)}
-                          className="px-3 py-1.5 bg-red-950/60 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/60 text-xs font-bold rounded-lg transition"
+                          className="px-3 py-1.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 text-xs font-bold rounded-xl transition cursor-pointer"
                         >
                           Excluir
                         </button>

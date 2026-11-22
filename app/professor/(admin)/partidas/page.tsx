@@ -311,26 +311,55 @@ export default function GerenciarPartidasPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-6">
-      {/* CABEÇALHO */}
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-        <h1 className="text-2xl font-black text-amber-400">Partidas & Súmulas</h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Defina horários, locais e abra as súmulas digitais das partidas.
-        </p>
+    <div className="max-w-7xl mx-auto w-full space-y-5">
+      {/* HERO TÁTICO BENTO */}
+      <div className="bento-hero court-grid-bg p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full mb-2">
+            Agenda & Arbitragem
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Partidas & Súmulas
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
+            Defina horários, locais e abra as súmulas digitais das partidas.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/15 px-3.5 py-2 rounded-2xl">
+            <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-200/80">
+              Agendadas
+            </span>
+            <span className="text-base font-black text-white">{totalAgendadas}</span>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/15 px-3.5 py-2 rounded-2xl">
+            <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-200/80">
+              Ao Vivo
+            </span>
+            <span className="text-base font-black text-amber-200">{totalEmAndamento}</span>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/15 px-3.5 py-2 rounded-2xl">
+            <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-200/80">
+              Concluídas
+            </span>
+            <span className="text-base font-black text-emerald-200">{totalFinalizadas}</span>
+          </div>
+        </div>
       </div>
 
       {/* FILTROS & INDICADORES */}
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bento-card p-5 sm:p-6 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Modalidade
             </label>
             <select
+              suppressHydrationWarning
               value={modalidadeId}
               onChange={(e) => setModalidadeId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 font-bold focus:border-amber-400 outline-none"
+              className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-bold focus:border-[#52657a] outline-none transition cursor-pointer"
             >
               <option value="todas">Todas as Modalidades</option>
               {modalidades.map((m) => (
@@ -342,13 +371,14 @@ export default function GerenciarPartidasPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Grupo / Categoria
             </label>
             <select
+              suppressHydrationWarning
               value={grupoId}
               onChange={(e) => setGrupoId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 font-bold focus:border-amber-400 outline-none"
+              className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-bold focus:border-[#52657a] outline-none transition cursor-pointer"
             >
               <option value="todos">Todos os Grupos</option>
               {grupos.map((g) => (
@@ -360,13 +390,14 @@ export default function GerenciarPartidasPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Fase
             </label>
             <select
+              suppressHydrationWarning
               value={faseFiltro}
               onChange={(e) => setFaseFiltro(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 font-bold focus:border-amber-400 outline-none"
+              className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-bold focus:border-[#52657a] outline-none transition cursor-pointer"
             >
               <option value="todas">Todas as Fases</option>
               <option value="GRUPO">Fase de Grupos</option>
@@ -378,13 +409,14 @@ export default function GerenciarPartidasPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Status
             </label>
             <select
+              suppressHydrationWarning
               value={statusFiltro}
               onChange={(e) => setStatusFiltro(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 font-bold focus:border-amber-400 outline-none"
+              className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-bold focus:border-[#52657a] outline-none transition cursor-pointer"
             >
               <option value="todos">Todos os Status</option>
               <option value="agendada">Agendada</option>
@@ -394,36 +426,36 @@ export default function GerenciarPartidasPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-800 text-xs font-bold text-slate-400">
+        <div className="flex flex-wrap items-center gap-3 pt-3.5 border-t border-slate-100 text-xs font-bold text-slate-500">
           <span>
-            Exibindo: <strong className="text-amber-400">{partidasFiltradas.length}</strong>
+            Exibindo: <strong className="text-[#e05338]">{partidasFiltradas.length}</strong>
           </span>
-          <span className="text-slate-700">•</span>
+          <span className="text-slate-300">•</span>
           <span>
-            Agendadas: <strong className="text-slate-200">{totalAgendadas}</strong>
+            Agendadas: <strong className="text-slate-800">{totalAgendadas}</strong>
           </span>
-          <span className="text-slate-700">•</span>
+          <span className="text-slate-300">•</span>
           <span>
-            Em Andamento: <strong className="text-amber-400">{totalEmAndamento}</strong>
+            Em Andamento: <strong className="text-[#e05338]">{totalEmAndamento}</strong>
           </span>
-          <span className="text-slate-700">•</span>
+          <span className="text-slate-300">•</span>
           <span>
-            Finalizadas: <strong className="text-emerald-400">{totalFinalizadas}</strong>
+            Finalizadas: <strong className="text-emerald-600">{totalFinalizadas}</strong>
           </span>
         </div>
       </div>
 
       {/* LISTAGEM ORGANIZADA POR FASES */}
       {carregando ? (
-        <div className="py-16 text-center text-slate-400 font-bold text-sm animate-pulse">
+        <div className="bento-card py-16 text-center text-slate-500 font-bold text-sm animate-pulse">
           Carregando partidas...
         </div>
       ) : partidasFiltradas.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 p-12 rounded-2xl text-center text-slate-500 italic text-xs">
+        <div className="bento-card p-12 text-center text-slate-500 italic text-xs">
           Nenhuma partida encontrada para os filtros selecionados.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {partidasFaseGrupo.length > 0 && (
             <SecaoFase
               titulo="Fase de Grupos"
@@ -496,32 +528,35 @@ export default function GerenciarPartidasPage() {
 
       {/* MODAL DE PROGRAMAÇÃO (DATA, HORÁRIO E LOCAL) */}
       {partidaEditando && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
-            <h3 className="text-base font-black text-amber-400 border-b border-slate-800 pb-3">
-              Programação da Partida
-            </h3>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bento-card p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#f06449]" />
+              <h3 className="text-base font-black text-slate-900">
+                Programação da Partida
+              </h3>
+            </div>
 
-            <div className="text-xs text-slate-200 font-bold bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-              <span>{getNomeEquipe(partidaEditando.time_a_id)}</span>
-              <span className="text-amber-400">vs</span>
-              <span>{getNomeEquipe(partidaEditando.time_b_id)}</span>
+            <div className="text-xs text-slate-800 font-bold bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 flex justify-between items-center gap-2">
+              <span className="truncate">{getNomeEquipe(partidaEditando.time_a_id)}</span>
+              <span className="text-[#f06449] font-black shrink-0">vs</span>
+              <span className="truncate">{getNomeEquipe(partidaEditando.time_b_id)}</span>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Data e Horário
               </label>
               <input
                 type="datetime-local"
                 value={inputDataHora}
                 onChange={(e) => setInputDataHora(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-amber-400 outline-none"
+                className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#52657a] outline-none transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Local
               </label>
               <input
@@ -529,7 +564,7 @@ export default function GerenciarPartidasPage() {
                 placeholder="Ex: Quadra Principal, Ginásio"
                 value={inputLocal}
                 onChange={(e) => setInputLocal(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-amber-400 outline-none"
+                className="w-full bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#52657a] outline-none transition"
               />
             </div>
 
@@ -537,14 +572,14 @@ export default function GerenciarPartidasPage() {
               <button
                 disabled={processando}
                 onClick={() => setPartidaEditando(null)}
-                className="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition disabled:opacity-50"
+                className="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold transition cursor-pointer disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 disabled={processando}
                 onClick={handleSalvarProgramacao}
-                className="w-1/2 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition disabled:opacity-50"
+                className="w-1/2 py-2.5 rounded-xl bg-[#f06449] hover:bg-[#e05338] text-white text-xs font-black shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-50"
               >
                 {processando ? "Salvando..." : "Salvar"}
               </button>
@@ -598,12 +633,15 @@ function SecaoFase({
   processando,
 }: SecaoFaseProps) {
   return (
-    <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h2 className="text-sm font-black text-amber-400 uppercase tracking-wider">
-          {titulo}
-        </h2>
-        <span className="text-[11px] text-slate-400 font-bold">
+    <div className="bento-card p-5 sm:p-6 space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#52657a]" />
+          <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+            {titulo}
+          </h2>
+        </div>
+        <span className="text-[11px] text-slate-500 font-bold bg-slate-100 px-2.5 py-0.5 rounded-full">
           {partidas.length} jogo(s)
         </span>
       </div>
@@ -618,28 +656,28 @@ function SecaoFase({
           return (
             <div
               key={p.id}
-              className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-3 flex flex-col justify-between"
+              className="bg-slate-50/90 border border-slate-200/90 p-4 rounded-2xl space-y-3 flex flex-col justify-between"
             >
               <div>
                 {/* Cabeçalho do Card */}
                 <div className="flex justify-between items-center mb-2.5 gap-2">
                   {!ocultarBadgeFasePadrao ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#3b4b5e] bg-[#52657a]/12 px-2.5 py-0.5 rounded-lg">
                       {formatarFaseAmigavel(p.fase, p.ordem)}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono text-slate-500">
+                    <span className="text-[10px] font-mono text-slate-400">
                       #{p.id}
                     </span>
                   )}
 
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border ${
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
                       ehFinalizada
-                        ? "text-emerald-400 bg-emerald-950/60 border-emerald-800/80"
+                        ? "text-emerald-700 bg-emerald-50 border-emerald-200"
                         : statusPartida === "em_andamento"
-                        ? "text-amber-400 bg-amber-950/60 border-amber-800/80"
-                        : "text-slate-400 bg-slate-900 border-slate-800"
+                        ? "text-[#e05338] bg-[#f06449]/15 border-[#f06449]/30"
+                        : "text-slate-600 bg-white border-slate-200"
                     }`}
                   >
                     {statusPartida.replace("_", " ")}
@@ -647,40 +685,40 @@ function SecaoFase({
                 </div>
 
                 {/* Confronto e Placar */}
-                <div className="flex justify-between items-center bg-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-800 my-2">
-                  <span className="text-xs font-bold text-slate-100 w-2/5 text-left truncate">
+                <div className="flex justify-between items-center bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 my-2">
+                  <span className="text-xs font-bold text-slate-900 w-2/5 text-left truncate">
                     {getNomeEquipe(p.time_a_id)}
                   </span>
 
-                  <div className="text-sm font-black text-amber-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">
-                    {p.placar_a ?? 0} x {p.placar_b ?? 0}
+                  <div className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                    {p.placar_a ?? 0} <span className="text-[#f06449] mx-0.5">x</span> {p.placar_b ?? 0}
                   </div>
 
-                  <span className="text-xs font-bold text-slate-100 w-2/5 text-right truncate">
+                  <span className="text-xs font-bold text-slate-900 w-2/5 text-right truncate">
                     {getNomeEquipe(p.time_b_id)}
                   </span>
                 </div>
 
                 {/* Data, Horário e Local */}
-                <div className="text-[11px] text-slate-400 flex flex-wrap justify-between gap-2 pt-1">
+                <div className="text-[11px] text-slate-500 flex flex-wrap justify-between gap-2 pt-1">
                   <span>📅 {formatarDataHora(p.horario)}</span>
                   <span>📍 {p.local || "A definir"}</span>
                 </div>
 
                 {/* Vencedor do Desempate */}
                 {ehFinalizada && p.vencedor_id && (
-                  <div className="mt-2.5 text-[10px] font-bold text-emerald-400 bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-800/50">
+                  <div className="mt-2.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200">
                     🏆 Desempate: {getNomeEquipe(p.vencedor_id)}
                   </div>
                 )}
               </div>
 
               {/* Botões de Ação */}
-              <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-200/70">
                 <button
                   disabled={processando}
                   onClick={() => onEditar(p)}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-lg text-xs font-bold transition disabled:opacity-50"
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3b4b5e] border border-slate-200 rounded-xl text-xs font-bold transition cursor-pointer disabled:opacity-50"
                 >
                   Programação
                 </button>
@@ -690,7 +728,7 @@ function SecaoFase({
                     <button
                       disabled={processando}
                       onClick={() => onExcluir(p)}
-                      className="px-2.5 py-1.5 text-red-400 hover:bg-red-950/50 border border-transparent hover:border-red-800/60 rounded-lg text-xs font-bold transition disabled:opacity-50"
+                      className="px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl text-xs font-bold transition cursor-pointer disabled:opacity-50"
                     >
                       Excluir
                     </button>
@@ -698,7 +736,7 @@ function SecaoFase({
 
                   <Link
                     href={`/professor/sumula/${p.id}`}
-                    className="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg text-xs font-black transition"
+                    className="px-3.5 py-1.5 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl text-xs font-black shadow-xs shadow-[#f06449]/25 transition"
                   >
                     Súmula
                   </Link>

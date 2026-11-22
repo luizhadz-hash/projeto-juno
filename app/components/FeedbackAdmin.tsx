@@ -40,26 +40,37 @@ function ToastUnidade({
 
   const estilos =
     toast.tipo === "sucesso"
-      ? "bg-slate-900 border-emerald-500/80 text-emerald-200 shadow-emerald-950/50"
+      ? "bg-white border-emerald-200 text-emerald-900 shadow-slate-900/10"
       : toast.tipo === "erro"
-      ? "bg-slate-900 border-red-500/80 text-red-200 shadow-red-950/50"
-      : "bg-slate-900 border-amber-400/80 text-amber-200 shadow-amber-950/50";
+      ? "bg-white border-rose-200 text-rose-900 shadow-slate-900/10"
+      : "bg-white border-amber-200 text-amber-900 shadow-slate-900/10";
+
+  const badgeIcone =
+    toast.tipo === "sucesso"
+      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+      : toast.tipo === "erro"
+      ? "bg-rose-50 text-rose-600 border-rose-200"
+      : "bg-amber-50 text-amber-600 border-amber-200";
 
   const icone =
     toast.tipo === "sucesso" ? "✅" : toast.tipo === "erro" ? "⚠️" : "ℹ️";
 
   return (
     <div
-      className={`pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-bold transition-all ${estilos}`}
+      className={`pointer-events-auto flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl border shadow-xl text-xs font-bold transition-all ${estilos}`}
     >
-      <div className="flex items-center gap-2.5">
-        <span className="text-sm">{icone}</span>
+      <div className="flex items-center gap-3">
+        <span
+          className={`h-7 w-7 rounded-xl border flex items-center justify-center text-xs shrink-0 ${badgeIcone}`}
+        >
+          {icone}
+        </span>
         <span className="leading-snug">{toast.mensagem}</span>
       </div>
       <button
         type="button"
         onClick={onClose}
-        className="text-slate-400 hover:text-white font-black text-xs ml-2"
+        className="text-slate-400 hover:text-slate-700 font-black text-xs ml-2 cursor-pointer"
       >
         ✕
       </button>
@@ -89,27 +100,27 @@ export function ModalConfirmacao({
   if (!aberto) return null;
 
   return (
-    <div className="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4 text-center">
+    <div className="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div className="bento-card p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4 text-center">
         <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl border ${
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-xl border ${
             variante === "perigo"
-              ? "bg-red-950/60 text-red-400 border-red-700/60"
-              : "bg-amber-500/20 text-amber-400 border-amber-500/40"
+              ? "bg-rose-50 text-rose-600 border-rose-200"
+              : "bg-[#f06449]/10 text-[#e05338] border-[#f06449]/30"
           }`}
         >
           {variante === "perigo" ? "🗑️" : "⚠️"}
         </div>
 
-        <h3 className="text-base font-black text-slate-100">{titulo}</h3>
-        <p className="text-xs text-slate-400 leading-relaxed">{descricao}</p>
+        <h3 className="text-base font-black text-slate-900">{titulo}</h3>
+        <p className="text-xs text-slate-500 leading-relaxed">{descricao}</p>
 
         <div className="flex gap-3 pt-2">
           <button
             type="button"
             disabled={carregando}
             onClick={onCancelar}
-            className="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition disabled:opacity-50"
+            className="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold transition cursor-pointer disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -117,10 +128,10 @@ export function ModalConfirmacao({
             type="button"
             disabled={carregando}
             onClick={onConfirmar}
-            className={`w-1/2 py-2.5 rounded-xl text-xs font-black transition disabled:opacity-50 ${
+            className={`w-1/2 py-2.5 rounded-xl text-xs font-black transition cursor-pointer disabled:opacity-50 ${
               variante === "perigo"
-                ? "bg-red-600 hover:bg-red-500 text-white"
-                : "bg-amber-400 hover:bg-amber-300 text-slate-950"
+                ? "bg-rose-600 hover:bg-rose-700 text-white shadow-xs shadow-rose-600/25"
+                : "bg-[#f06449] hover:bg-[#e05338] text-white shadow-xs shadow-[#f06449]/30"
             }`}
           >
             {carregando ? "Processando..." : textoConfirmar}

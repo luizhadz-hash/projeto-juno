@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef2f6;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --slate-tactical: #52657a;
+  --slate-tactical-dark: #3b4b5e;
+  --accent-coral: #f06449;
+  --accent-coral-hover: #e05338;
+  --border-subtle: #e2e8f0;
 }
 
 @theme inline {
@@ -12,17 +19,35 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ============================================================================
+   DESIGN SYSTEM — BENTO SPORTS UI (PROJETO JUNO)
+   ============================================================================ */
+.bento-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05);
+}
+
+.bento-hero {
+  background: linear-gradient(135deg, #52657a 0%, #3b4b5e 100%);
+  color: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 30px -8px rgba(59, 75, 94, 0.35);
+}
+
+/* Padrão geométrico sutil inspirado nas linhas de quadra */
+.court-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 /* ============================================================================
@@ -61,7 +86,7 @@ body {
     display: block !important;
   }
 
-  /* Reseta containers escuros para folha branca limpa */
+  /* Reseta containers para folha branca limpa */
   .print-container,
   .print-container * {
     background-color: transparent !important;

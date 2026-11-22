@@ -663,54 +663,92 @@ export default function AlunoPage() {
   const artilheiros = calcularArtilharia();
   const comCartoes = calcularCartoes();
 
+  const totalJogosEncerrados = partidas.filter(
+    (p) => p.status && STATUS_ENCERRADOS.includes(p.status)
+  ).length;
+  const totalJogosAoVivo = partidas.filter((p) => p.status === "em_andamento").length;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* CABEÇALHO */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-black text-amber-400">Painel do Aluno</h1>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-700/70">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Ao vivo
-              </span>
+    <main className="min-h-screen bg-[#eef2f6] text-slate-900 p-4 sm:p-6 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-5">
+        {/* HERO TÁTICO BENTO */}
+        <header className="bento-hero court-grid-bg relative overflow-hidden p-6 sm:p-8">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full">
+                  Projeto Juno
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Tempo Real
+                </span>
+                {totalJogosAoVivo > 0 && (
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f06449] text-white">
+                    {totalJogosAoVivo} {totalJogosAoVivo === 1 ? "jogo agora" : "jogos agora"}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                Painel do Aluno
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-200/90">
+                {ehFutsal
+                  ? "Classificação, mata-mata, artilharia, cartões e pódio oficial."
+                  : "Classificação, agenda de partidas, chaveamento e pódio oficial."}
+              </p>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              {ehFutsal
-                ? "Classificação, mata-mata, artilharia, cartões e pódio em tempo real."
-                : "Classificação, jogos, chaveamento e pódio em tempo real."}
-            </p>
-          </div>
 
-          <div className="w-full md:w-auto">
-            <select
-              suppressHydrationWarning
-              value={modalidadeSelecionada || ""}
-              onChange={(e) => {
-                setModalidadeSelecionada(Number(e.target.value));
-                setGrupoFiltro("TODOS");
-              }}
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-xs font-bold px-4 py-2.5 rounded-xl outline-none focus:border-amber-400"
-            >
-              {modalidades.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.nome.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+            {/* Seletor de Modalidade + Mini Resumo */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2.5 rounded-2xl">
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-200/80">
+                    Equipes
+                  </span>
+                  <span className="text-base font-black text-white">{equipes.length}</span>
+                </div>
+                <div className="h-6 w-px bg-white/15" />
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-200/80">
+                    Finalizados
+                  </span>
+                  <span className="text-base font-black text-white">
+                    {totalJogosEncerrados}/{partidas.length}
+                  </span>
+                </div>
+              </div>
 
-        {/* ABAS E FILTROS */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-2xl">
-          <div className="flex flex-wrap gap-2">
+              <select
+                suppressHydrationWarning
+                value={modalidadeSelecionada || ""}
+                onChange={(e) => {
+                  setModalidadeSelecionada(Number(e.target.value));
+                  setGrupoFiltro("TODOS");
+                }}
+                aria-label="Selecionar Modalidade"
+                className="bg-white text-slate-900 text-xs font-black px-4 py-3.5 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-[#f06449] cursor-pointer"
+              >
+                {modalidades.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nome.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </header>
+
+        {/* BARRA DE NAVEGAÇÃO (ABAS) E FILTROS */}
+        <section className="bento-card p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setAbaAtiva("classificacao")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 abaAtiva === "classificacao"
-                  ? "bg-amber-400 text-slate-950 font-black"
-                  : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                  ? "bg-[#f06449] text-white font-black shadow-sm shadow-[#f06449]/30"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
               }`}
             >
               Classificação & Pódio
@@ -720,20 +758,20 @@ export default function AlunoPage() {
               <>
                 <button
                   onClick={() => setAbaAtiva("artilharia")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     abaAtiva === "artilharia"
-                      ? "bg-amber-400 text-slate-950 font-black"
-                      : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                      ? "bg-[#f06449] text-white font-black shadow-sm shadow-[#f06449]/30"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
                   }`}
                 >
                   Artilharia
                 </button>
                 <button
                   onClick={() => setAbaAtiva("cartoes")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     abaAtiva === "cartoes"
-                      ? "bg-amber-400 text-slate-950 font-black"
-                      : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                      ? "bg-[#f06449] text-white font-black shadow-sm shadow-[#f06449]/30"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
                   }`}
                 >
                   Cartões
@@ -743,10 +781,10 @@ export default function AlunoPage() {
 
             <button
               onClick={() => setAbaAtiva("jogos")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 abaAtiva === "jogos"
-                  ? "bg-amber-400 text-slate-950 font-black"
-                  : "bg-slate-950 text-slate-400 hover:text-slate-100 border border-slate-800"
+                  ? "bg-[#f06449] text-white font-black shadow-sm shadow-[#f06449]/30"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
               }`}
             >
               Jogos
@@ -759,7 +797,7 @@ export default function AlunoPage() {
               value={grupoFiltro}
               onChange={(e) => setGrupoFiltro(e.target.value === "TODOS" ? "TODOS" : Number(e.target.value))}
               aria-label="Filtrar por Grupo"
-              className="bg-slate-950 border border-slate-800 text-xs font-bold px-3 py-2 rounded-xl text-slate-200 outline-none focus:border-amber-400"
+              className="bg-slate-50 border border-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl text-slate-700 outline-none focus:border-[#52657a] cursor-pointer"
             >
               <option value="TODOS">Todos os Grupos</option>
               {grupos.map((g) => (
@@ -775,15 +813,15 @@ export default function AlunoPage() {
                 placeholder="Buscar atleta..."
                 value={buscaNome}
                 onChange={(e) => setBuscaNome(e.target.value)}
-                className="w-full sm:w-52 bg-slate-950 border border-slate-800 text-xs px-3 py-2 rounded-xl text-slate-200 outline-none focus:border-amber-400"
+                className="w-full sm:w-52 bg-slate-50 border border-slate-200 text-xs px-3.5 py-2.5 rounded-xl text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#52657a]"
               />
             )}
           </div>
-        </div>
+        </section>
 
         {carregando ? (
-          <div className="text-center py-12 text-slate-400 text-sm font-bold animate-pulse">
-            Carregando informações...
+          <div className="bento-card text-center py-14 text-slate-500 text-sm font-bold animate-pulse">
+            Carregando dados do torneio...
           </div>
         ) : (
           <>
@@ -842,55 +880,72 @@ export default function AlunoPage() {
                 }
 
                 return (
-                  <div key={grupo.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                      <h2 className="text-lg font-black text-amber-400">{grupo.nome}</h2>
-                      <span className="text-xs text-slate-400 font-bold">
+                  <div key={grupo.id} className="bento-card p-5 sm:p-7 space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="h-3 w-3 rounded-full bg-[#52657a]" />
+                        <h2 className="text-lg font-black text-slate-900 capitalize">{grupo.nome}</h2>
+                      </div>
+                      <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
                         {equipesDoGrupo.length} equipes
                       </span>
                     </div>
 
                     {/* Tabela de Classificação */}
                     {equipesDoGrupo.length >= 3 && (
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
-                              <th className="p-2.5 w-10">#</th>
-                              <th className="p-2.5">Equipe</th>
-                              <th className="p-2.5 text-center">Pts</th>
-                              <th className="p-2.5 text-center">J</th>
-                              <th className="p-2.5 text-center">V</th>
-                              <th className="p-2.5 text-center">E</th>
-                              <th className="p-2.5 text-center">D</th>
-                              <th className="p-2.5 text-center">{ehFutsal ? "GP" : "PP"}</th>
-                              <th className="p-2.5 text-center">{ehFutsal ? "GC" : "PC"}</th>
-                              <th className="p-2.5 text-center">{ehFutsal ? "SG" : "SP"}</th>
+                            <tr className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] border-b border-slate-200/80">
+                              <th className="p-3 w-11 text-center">#</th>
+                              <th className="p-3">Equipe</th>
+                              <th className="p-3 text-center">Pts</th>
+                              <th className="p-3 text-center">J</th>
+                              <th className="p-3 text-center">V</th>
+                              <th className="p-3 text-center">E</th>
+                              <th className="p-3 text-center">D</th>
+                              <th className="p-3 text-center">{ehFutsal ? "GP" : "PP"}</th>
+                              <th className="p-3 text-center">{ehFutsal ? "GC" : "PC"}</th>
+                              <th className="p-3 text-center">{ehFutsal ? "SG" : "SP"}</th>
                               {ehFutsal && (
                                 <>
-                                  <th className="p-2.5 text-center">CA</th>
-                                  <th className="p-2.5 text-center">CV</th>
+                                  <th className="p-3 text-center">CA</th>
+                                  <th className="p-3 text-center">CV</th>
                                 </>
                               )}
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-800/80">
+                          <tbody className="divide-y divide-slate-100 bg-white">
                             {tabela.map((t, idx) => (
-                              <tr key={t.equipeId} className="hover:bg-slate-950/60 transition">
-                                <td className="p-2.5 font-black text-slate-400">{idx + 1}º</td>
-                                <td className="p-2.5 font-bold text-slate-100">{t.nome}</td>
-                                <td className="p-2.5 text-center font-black text-amber-400">{t.pontos}</td>
-                                <td className="p-2.5 text-center">{t.jogos}</td>
-                                <td className="p-2.5 text-center">{t.vitorias}</td>
-                                <td className="p-2.5 text-center">{t.empates}</td>
-                                <td className="p-2.5 text-center">{t.derrotas}</td>
-                                <td className="p-2.5 text-center">{t.golsPro}</td>
-                                <td className="p-2.5 text-center">{t.golsContra}</td>
-                                <td className="p-2.5 text-center font-bold">{t.saldoGols}</td>
+                              <tr key={t.equipeId} className="hover:bg-slate-50/90 transition-colors">
+                                <td className="p-3 text-center">
+                                  <span
+                                    className={`inline-flex items-center justify-center w-6 h-6 rounded-lg text-[11px] font-black ${
+                                      idx === 0
+                                        ? "bg-[#f06449]/15 text-[#e05338]"
+                                        : idx === 1
+                                        ? "bg-[#52657a]/15 text-[#3b4b5e]"
+                                        : "bg-slate-100 text-slate-500"
+                                    }`}
+                                  >
+                                    {idx + 1}º
+                                  </span>
+                                </td>
+                                <td className="p-3 font-bold text-slate-900">{t.nome}</td>
+                                <td className="p-3 text-center font-black text-[#e05338] text-sm">
+                                  {t.pontos}
+                                </td>
+                                <td className="p-3 text-center text-slate-600">{t.jogos}</td>
+                                <td className="p-3 text-center text-emerald-600 font-semibold">{t.vitorias}</td>
+                                <td className="p-3 text-center text-slate-500">{t.empates}</td>
+                                <td className="p-3 text-center text-slate-500">{t.derrotas}</td>
+                                <td className="p-3 text-center text-slate-600">{t.golsPro}</td>
+                                <td className="p-3 text-center text-slate-600">{t.golsContra}</td>
+                                <td className="p-3 text-center font-bold text-slate-800">{t.saldoGols}</td>
                                 {ehFutsal && (
                                   <>
-                                    <td className="p-2.5 text-center text-amber-400 font-bold">{t.cartoesAmarelos}</td>
-                                    <td className="p-2.5 text-center text-red-400 font-bold">{t.cartoesVermelhos}</td>
+                                    <td className="p-3 text-center text-amber-600 font-bold">{t.cartoesAmarelos}</td>
+                                    <td className="p-3 text-center text-rose-600 font-bold">{t.cartoesVermelhos}</td>
                                   </>
                                 )}
                               </tr>
@@ -902,8 +957,8 @@ export default function AlunoPage() {
 
                     {/* Melhor de 3 */}
                     {equipesDoGrupo.length === 2 && partidasM3.length > 0 && (
-                      <div className="pt-4 border-t border-slate-800 space-y-3">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                      <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
                           Série Melhor de 3
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -912,7 +967,7 @@ export default function AlunoPage() {
                           {j3 && <CardPartidaMataMata partida={j3} titulo="Jogo 3" getNomeEquipe={getNomeEquipe} />}
                         </div>
                         {resultadoM3.statusTexto && (
-                          <p className="text-[11px] text-amber-400 font-bold text-center">
+                          <p className="text-xs text-[#e05338] font-bold text-center bg-[#f06449]/10 py-2 px-3 rounded-xl">
                             {resultadoM3.statusTexto}
                           </p>
                         )}
@@ -921,8 +976,8 @@ export default function AlunoPage() {
 
                     {/* Final (3 Equipes) */}
                     {equipesDoGrupo.length === 3 && finalPartidas.length > 0 && (
-                      <div className="pt-4 border-t border-slate-800 space-y-3">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                      <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-[#e05338]">
                           Grande Final
                         </h3>
                         <CardPartidaMataMata
@@ -931,7 +986,7 @@ export default function AlunoPage() {
                           getNomeEquipe={getNomeEquipe}
                         />
                         {vencFinal === "PENDENTE" && STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
-                          <div className="p-3 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                          <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs rounded-xl text-center">
                             ⚠️ Final empatada — aguardando definição de desempate.
                           </div>
                         )}
@@ -941,10 +996,10 @@ export default function AlunoPage() {
                     {/* Mata-Mata (4+ Equipes) */}
                     {equipesDoGrupo.length >= 4 &&
                       (semifinais.length > 0 || terceiroPartidas.length > 0 || finalPartidas.length > 0) && (
-                        <div className="pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
                           {semifinais.length > 0 && (
                             <div className="space-y-3">
-                              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                              <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
                                 Semifinais
                               </h3>
                               {semifinais.map((semi) => (
@@ -961,7 +1016,7 @@ export default function AlunoPage() {
                           <div className="space-y-3">
                             {finalPartidas.length > 0 && (
                               <div className="space-y-2">
-                                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                                <h3 className="text-xs font-black uppercase tracking-wider text-[#e05338]">
                                   Grande Final
                                 </h3>
                                 <CardPartidaMataMata
@@ -970,7 +1025,7 @@ export default function AlunoPage() {
                                   getNomeEquipe={getNomeEquipe}
                                 />
                                 {vencFinal === "PENDENTE" && STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
-                                  <div className="p-2.5 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                                  <div className="p-2.5 bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs rounded-xl text-center">
                                     ⚠️ Final empatada — aguardando desempate.
                                   </div>
                                 )}
@@ -979,7 +1034,7 @@ export default function AlunoPage() {
 
                             {terceiroPartidas.length > 0 && (
                               <div className="space-y-2">
-                                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
                                   Disputa de 3º Lugar
                                 </h3>
                                 <CardPartidaMataMata
@@ -989,7 +1044,7 @@ export default function AlunoPage() {
                                 />
                                 {vencTerceiro === "PENDENTE" &&
                                   STATUS_ENCERRADOS.includes(partidaTerceiro.status || "") && (
-                                    <div className="p-2.5 bg-amber-950/50 border border-amber-500/60 text-amber-200 font-bold text-xs rounded-xl text-center">
+                                    <div className="p-2.5 bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs rounded-xl text-center">
                                       ⚠️ Disputa de 3º empatada — aguardando desempate.
                                     </div>
                                   )}
@@ -1001,37 +1056,37 @@ export default function AlunoPage() {
 
                     {/* PÓDIO */}
                     {primeiroLugar && (
-                      <div className="pt-4 border-t border-slate-800 space-y-3">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                      <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-[#52657a]">
                           🏆 Pódio Oficial
                         </h3>
                         <div className={`grid grid-cols-1 ${terceiroLugar ? "md:grid-cols-3" : "md:grid-cols-2"} gap-3`}>
-                          <div className="bg-amber-950/30 border border-amber-500/60 p-4 rounded-xl text-center">
-                            <span className="text-[11px] font-black uppercase text-amber-400 block">
+                          <div className="bg-amber-50 border border-amber-300/80 p-4 rounded-2xl text-center shadow-xs">
+                            <span className="text-[11px] font-black uppercase text-amber-700 block">
                               🥇 Campeão
                             </span>
-                            <span className="text-base font-black text-white mt-1 block">
+                            <span className="text-base font-black text-slate-900 mt-1 block">
                               {primeiroLugar}
                             </span>
                           </div>
 
                           {segundoLugar && (
-                            <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center">
-                              <span className="text-[11px] font-black uppercase text-slate-300 block">
+                            <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
+                              <span className="text-[11px] font-black uppercase text-slate-500 block">
                                 🥈 Vice-Campeão
                               </span>
-                              <span className="text-base font-bold text-slate-100 mt-1 block">
+                              <span className="text-base font-bold text-slate-800 mt-1 block">
                                 {segundoLugar}
                               </span>
                             </div>
                           )}
 
                           {terceiroLugar && (
-                            <div className="bg-orange-950/25 border border-orange-600/50 p-4 rounded-xl text-center">
-                              <span className="text-[11px] font-black uppercase text-orange-400 block">
+                            <div className="bg-orange-50/80 border border-orange-200 p-4 rounded-2xl text-center">
+                              <span className="text-[11px] font-black uppercase text-orange-700 block">
                                 🥉 3º Lugar
                               </span>
-                              <span className="text-base font-bold text-orange-100 mt-1 block">
+                              <span className="text-base font-bold text-slate-800 mt-1 block">
                                 {terceiroLugar}
                               </span>
                             </div>
@@ -1045,32 +1100,37 @@ export default function AlunoPage() {
 
             {/* ABA 2: ARTILHARIA */}
             {ehFutsal && abaAtiva === "artilharia" && (
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h2 className="text-lg font-black text-amber-400">Artilharia</h2>
+              <div className="bento-card p-5 sm:p-7 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h2 className="text-lg font-black text-slate-900">Artilharia</h2>
+                  <span className="text-xs font-bold bg-[#f06449]/10 text-[#e05338] px-3 py-1 rounded-full">
+                    Futsal
+                  </span>
+                </div>
                 {artilheiros.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic">
+                  <p className="text-xs text-slate-500 italic py-4">
                     Nenhum gol registrado em partidas finalizadas para este filtro.
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
-                          <th className="p-2.5 w-12">#</th>
-                          <th className="p-2.5">Atleta</th>
-                          <th className="p-2.5">Equipe</th>
-                          <th className="p-2.5">Grupo</th>
-                          <th className="p-2.5 text-center">Gols</th>
+                        <tr className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] border-b border-slate-200/80">
+                          <th className="p-3 w-12 text-center">#</th>
+                          <th className="p-3">Atleta</th>
+                          <th className="p-3">Equipe</th>
+                          <th className="p-3">Grupo</th>
+                          <th className="p-3 text-center">Gols</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/80">
+                      <tbody className="divide-y divide-slate-100 bg-white">
                         {artilheiros.map((item, idx) => (
-                          <tr key={item.alunoId} className="hover:bg-slate-950/60 transition">
-                            <td className="p-2.5 font-black text-slate-400">{idx + 1}º</td>
-                            <td className="p-2.5 font-bold text-slate-100">{item.nomeAluno}</td>
-                            <td className="p-2.5 text-slate-300">{item.nomeEquipe}</td>
-                            <td className="p-2.5 text-slate-400">{item.nomeGrupo}</td>
-                            <td className="p-2.5 text-center font-black text-amber-400 text-sm">
+                          <tr key={item.alunoId} className="hover:bg-slate-50/90 transition-colors">
+                            <td className="p-3 text-center font-black text-slate-500">{idx + 1}º</td>
+                            <td className="p-3 font-bold text-slate-900">{item.nomeAluno}</td>
+                            <td className="p-3 text-slate-700 font-medium">{item.nomeEquipe}</td>
+                            <td className="p-3 text-slate-500 capitalize">{item.nomeGrupo}</td>
+                            <td className="p-3 text-center font-black text-[#e05338] text-sm">
                               ⚽ {item.gols}
                             </td>
                           </tr>
@@ -1084,32 +1144,37 @@ export default function AlunoPage() {
 
             {/* ABA 3: CARTÕES */}
             {ehFutsal && abaAtiva === "cartoes" && (
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h2 className="text-lg font-black text-amber-400">Cartões</h2>
+              <div className="bento-card p-5 sm:p-7 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h2 className="text-lg font-black text-slate-900">Controle Disciplinar</h2>
+                  <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
+                    Cartões
+                  </span>
+                </div>
                 {comCartoes.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic">
+                  <p className="text-xs text-slate-500 italic py-4">
                     Nenhum cartão registrado em partidas finalizadas para este filtro.
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
-                          <th className="p-2.5">Atleta</th>
-                          <th className="p-2.5">Equipe</th>
-                          <th className="p-2.5">Grupo</th>
-                          <th className="p-2.5 text-center">🟨 Amarelos</th>
-                          <th className="p-2.5 text-center">🟥 Vermelhos</th>
+                        <tr className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] border-b border-slate-200/80">
+                          <th className="p-3">Atleta</th>
+                          <th className="p-3">Equipe</th>
+                          <th className="p-3">Grupo</th>
+                          <th className="p-3 text-center">🟨 Amarelos</th>
+                          <th className="p-3 text-center">🟥 Vermelhos</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/80">
+                      <tbody className="divide-y divide-slate-100 bg-white">
                         {comCartoes.map((item) => (
-                          <tr key={item.alunoId} className="hover:bg-slate-950/60 transition">
-                            <td className="p-2.5 font-bold text-slate-100">{item.nomeAluno}</td>
-                            <td className="p-2.5 text-slate-300">{item.nomeEquipe}</td>
-                            <td className="p-2.5 text-slate-400">{item.nomeGrupo}</td>
-                            <td className="p-2.5 text-center font-bold text-amber-400">{item.amarelos}</td>
-                            <td className="p-2.5 text-center font-bold text-red-400">{item.vermelhos}</td>
+                          <tr key={item.alunoId} className="hover:bg-slate-50/90 transition-colors">
+                            <td className="p-3 font-bold text-slate-900">{item.nomeAluno}</td>
+                            <td className="p-3 text-slate-700 font-medium">{item.nomeEquipe}</td>
+                            <td className="p-3 text-slate-500 capitalize">{item.nomeGrupo}</td>
+                            <td className="p-3 text-center font-bold text-amber-600">{item.amarelos}</td>
+                            <td className="p-3 text-center font-bold text-rose-600">{item.vermelhos}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1136,10 +1201,11 @@ export default function AlunoPage() {
                 const pFinal = partidasDoGrupo.filter((p) => p.fase === "FINAL");
 
                 return (
-                  <div key={grupo.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
-                    <h2 className="text-lg font-black text-amber-400 border-b border-slate-800 pb-3">
-                      {grupo.nome}
-                    </h2>
+                  <div key={grupo.id} className="bento-card p-5 sm:p-7 space-y-6">
+                    <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+                      <span className="h-3 w-3 rounded-full bg-[#52657a]" />
+                      <h2 className="text-lg font-black text-slate-900 capitalize">{grupo.nome}</h2>
+                    </div>
 
                     {pGrupo.length > 0 && (
                       <BlocoJogosFase
@@ -1220,40 +1286,40 @@ function CardPartidaMataMata({
   const temPenaltis = ehEmpate && partida.vencedor_id && statusEncerrado;
 
   return (
-    <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2.5">
+    <div className="bg-slate-50/90 border border-slate-200/90 p-4 rounded-2xl space-y-2.5">
       <div className="flex justify-between items-center text-[10px] font-bold uppercase">
-        <span className="text-amber-400 bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800">
+        <span className="text-[#3b4b5e] bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
           {titulo}
         </span>
         <span
-          className={`px-2 py-0.5 rounded ${
+          className={`px-2.5 py-0.5 rounded-full ${
             statusEncerrado
-              ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/80"
-              : "bg-slate-900 text-slate-400 border border-slate-800"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : "bg-white text-slate-500 border border-slate-200"
           }`}
         >
           {partida.status ? partida.status.replace("_", " ") : "agendada"}
         </span>
       </div>
 
-      <div className="flex justify-between items-center text-xs font-bold py-1">
+      <div className="flex justify-between items-center text-xs font-bold py-1 gap-2">
         <span
           className={
             pA > pB || (ehEmpate && Number(partida.vencedor_id) === Number(partida.time_a_id))
-              ? "text-amber-400"
-              : "text-slate-200"
+              ? "text-[#e05338] font-black"
+              : "text-slate-800"
           }
         >
           {getNomeEquipe(partida.time_a_id)}
         </span>
-        <span className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-amber-400 font-black">
+        <span className="bg-[#52657a] text-white px-3.5 py-1 rounded-xl font-black shrink-0 shadow-xs">
           {pA} x {pB}
         </span>
         <span
           className={
             pB > pA || (ehEmpate && Number(partida.vencedor_id) === Number(partida.time_b_id))
-              ? "text-amber-400"
-              : "text-slate-200"
+              ? "text-[#e05338] font-black text-right"
+              : "text-slate-800 text-right"
           }
         >
           {getNomeEquipe(partida.time_b_id)}
@@ -1261,7 +1327,7 @@ function CardPartidaMataMata({
       </div>
 
       {temPenaltis && (
-        <div className="text-[10px] text-emerald-400 text-center font-bold bg-emerald-950/30 p-1.5 rounded-lg border border-emerald-800/50">
+        <div className="text-[10px] text-emerald-700 text-center font-bold bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
           🏆 Desempate: {getNomeEquipe(partida.vencedor_id)}
         </div>
       )}
@@ -1284,7 +1350,7 @@ function BlocoJogosFase({
 }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-1.5">
+      <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">
         {titulo}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1297,39 +1363,39 @@ function BlocoJogosFase({
           const temPenaltis = ehEmpate && p.vencedor_id && statusEncerrado;
 
           return (
-            <div key={p.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2.5">
+            <div key={p.id} className="bg-slate-50/90 border border-slate-200/90 p-4 rounded-2xl space-y-2.5">
               <div className="flex justify-between items-center text-[10px] font-bold uppercase">
-                <span className="text-amber-400 bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800">
+                <span className="text-[#3b4b5e] bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
                   {formatarFaseAmigavel(p.fase, p.ordem)}
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded ${
+                  className={`px-2.5 py-0.5 rounded-full ${
                     statusEncerrado
-                      ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/80"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                       : statusPartida === "em_andamento"
-                      ? "bg-amber-950/60 text-amber-400 border border-amber-800/80"
-                      : "bg-slate-900 text-slate-400 border border-slate-800"
+                      ? "bg-[#f06449]/15 text-[#e05338] border border-[#f06449]/30"
+                      : "bg-white text-slate-500 border border-slate-200"
                   }`}
                 >
                   {statusPartida.replace("_", " ")}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-xs font-bold py-1">
-                <span className="text-slate-200">{getNomeEquipe(p.time_a_id)}</span>
-                <span className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-amber-400 font-black">
+              <div className="flex justify-between items-center text-xs font-bold py-1 gap-2">
+                <span className="text-slate-800">{getNomeEquipe(p.time_a_id)}</span>
+                <span className="bg-[#52657a] text-white px-3.5 py-1 rounded-xl font-black shrink-0 shadow-xs">
                   {pA} x {pB}
                 </span>
-                <span className="text-slate-200">{getNomeEquipe(p.time_b_id)}</span>
+                <span className="text-slate-800 text-right">{getNomeEquipe(p.time_b_id)}</span>
               </div>
 
-              <div className="text-[11px] text-slate-400 flex justify-between items-center pt-1.5 border-t border-slate-800/80">
+              <div className="text-[11px] text-slate-500 flex justify-between items-center pt-2 border-t border-slate-200/70">
                 <span>📅 {formatarDataHora(p.horario)}</span>
                 {p.local && <span>📍 {p.local}</span>}
               </div>
 
               {temPenaltis && (
-                <div className="text-[10px] text-emerald-400 text-center font-bold bg-emerald-950/30 p-1.5 rounded-lg border border-emerald-800/50">
+                <div className="text-[10px] text-emerald-700 text-center font-bold bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
                   🏆 Desempate: {getNomeEquipe(p.vencedor_id)}
                 </div>
               )}

@@ -696,14 +696,14 @@ export default function ClassificacaoPage() {
   }
 
   return (
-    <div className="print-container min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 md:p-8">
-      <div className="max-w-6xl mx-auto w-full space-y-6">
+    <div className="print-container min-h-screen bg-[#eef2f6] text-slate-900 flex flex-col justify-between p-4 sm:p-6 md:p-8">
+      <div className="max-w-6xl mx-auto w-full space-y-5">
         {/* CABEÇALHO OFICIAL EXCLUSIVO PARA IMPRESSÃO */}
         <div className="print-only border-b-2 border-black pb-3 mb-4">
           <div className="flex justify-between items-end">
             <div>
               <h1 className="text-xl font-black uppercase tracking-wide">
-                PROJETO JUNO — Boletim Oficial de Classificação e Pódio
+                Boletim Oficial de Classificação e Pódio
               </h1>
               <p className="text-xs font-bold mt-1">
                 Modalidade: {modalidadeAtual?.nome?.toUpperCase() || "—"}
@@ -716,22 +716,26 @@ export default function ClassificacaoPage() {
           </div>
         </div>
 
-        {/* CABEÇALHO DA TELA + FILTRO + BOTÃO IMPRIMIR */}
-        <div className="no-print bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        {/* HERO TÁTICO BENTO + FILTRO + BOTÃO IMPRIMIR */}
+        <div className="no-print bento-hero court-grid-bg p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-black text-amber-400">
-              🏆 Classificação e Mata-Mata
+            <span className="inline-block text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full mb-2">
+              Boletim & Eliminatórias
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Classificação e Mata-Mata
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-200/90 mt-1">
               Acompanhe tabelas de grupos, gere confrontos eliminatórios e imprima o boletim oficial.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
             <select
+              suppressHydrationWarning
               value={modalidadeId}
               onChange={(e) => setModalidadeId(e.target.value)}
-              className="flex-1 md:w-52 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-bold focus:border-amber-400 outline-none"
+              className="flex-1 md:w-52 bg-white text-slate-900 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs font-black focus:outline-none shadow-xs cursor-pointer"
             >
               {modalidades.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -743,7 +747,7 @@ export default function ClassificacaoPage() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2"
+              className="px-4 py-2.5 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl text-xs font-black shadow-xs shadow-[#f06449]/30 transition flex items-center gap-2 cursor-pointer"
             >
               <span>🖨️</span>
               <span>Imprimir Boletim</span>
@@ -752,29 +756,35 @@ export default function ClassificacaoPage() {
         </div>
 
         {mensagemErro && (
-          <div className="no-print p-4 bg-red-950/80 border border-red-500/80 text-red-200 rounded-xl text-sm font-semibold flex justify-between items-center">
+          <div className="no-print p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl text-xs font-bold flex justify-between items-center shadow-xs">
             <span>{mensagemErro}</span>
-            <button onClick={() => setMensagemErro(null)} className="font-bold text-red-400 ml-4">
+            <button
+              onClick={() => setMensagemErro(null)}
+              className="font-black text-rose-500 hover:text-rose-700 ml-4 cursor-pointer"
+            >
               ✕
             </button>
           </div>
         )}
 
         {mensagemSucesso && (
-          <div className="no-print p-4 bg-emerald-950/80 border border-emerald-500/80 text-emerald-200 rounded-xl text-sm font-semibold flex justify-between items-center">
+          <div className="no-print p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex justify-between items-center shadow-xs">
             <span>{mensagemSucesso}</span>
-            <button onClick={() => setMensagemSucesso(null)} className="font-bold text-emerald-400 ml-4">
+            <button
+              onClick={() => setMensagemSucesso(null)}
+              className="font-black text-emerald-500 hover:text-emerald-700 ml-4 cursor-pointer"
+            >
               ✕
             </button>
           </div>
         )}
 
         {carregando ? (
-          <p className="text-slate-400 my-12 text-center font-bold text-sm animate-pulse">
+          <div className="bento-card py-16 text-center text-slate-500 font-bold text-sm animate-pulse">
             Carregando dados da classificação...
-          </p>
+          </div>
         ) : Object.keys(tabelasPorGrupo).length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 p-10 rounded-2xl text-center text-slate-500 italic text-sm">
+          <div className="bento-card p-10 text-center text-slate-500 italic text-sm">
             Nenhuma equipe ou grupo encontrado para esta modalidade.
           </div>
         ) : (
@@ -877,71 +887,74 @@ export default function ClassificacaoPage() {
             return (
               <section
                 key={grupoId}
-                className="print-card bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg space-y-6"
+                className="print-card bento-card p-5 sm:p-6 space-y-6"
               >
                 {/* TÍTULO DO GRUPO */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-                  <h2 className="text-lg font-black text-slate-100">
-                    Grupo: <span className="text-amber-400">{dadosGrupo.nome}</span>
-                  </h2>
-                  <span className="text-xs font-bold text-slate-400 bg-slate-950 px-3 py-1 rounded-full border border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-3 w-3 rounded-full bg-[#f06449]" />
+                    <h2 className="text-lg font-black text-slate-900">
+                      Grupo: <span className="text-[#3b4b5e]">{dadosGrupo.nome}</span>
+                    </h2>
+                  </div>
+                  <span className="text-xs font-bold text-[#3b4b5e] bg-[#52657a]/10 px-3 py-1 rounded-full">
                     {totalEquipes} equipes
                   </span>
                 </div>
 
                 {/* 1. TABELA DE CLASSIFICAÇÃO (Apenas para 3 ou mais equipes) */}
                 {totalEquipes >= 3 && (
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <div className="space-y-2.5">
+                    <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500">
                       Classificação da Fase de Grupos
                     </h3>
-                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-200/90">
                       <table className="print-table w-full text-left text-xs border-collapse">
-                        <thead className="bg-slate-950 text-slate-400 uppercase font-bold border-b border-slate-800">
+                        <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200/90">
                           <tr>
-                            <th className="p-2.5 text-center w-12">Pos</th>
-                            <th className="p-2.5">Equipe</th>
-                            <th className="p-2.5 text-center">Pts</th>
-                            <th className="p-2.5 text-center">J</th>
-                            <th className="p-2.5 text-center">V</th>
-                            <th className="p-2.5 text-center">E</th>
-                            <th className="p-2.5 text-center">D</th>
-                            <th className="p-2.5 text-center">{ehFutsal ? "GP" : "PP"}</th>
-                            <th className="p-2.5 text-center">{ehFutsal ? "GC" : "PC"}</th>
-                            <th className="p-2.5 text-center">{ehFutsal ? "SG" : "SP"}</th>
+                            <th className="p-3 text-center w-12">Pos</th>
+                            <th className="p-3">Equipe</th>
+                            <th className="p-3 text-center">Pts</th>
+                            <th className="p-3 text-center">J</th>
+                            <th className="p-3 text-center">V</th>
+                            <th className="p-3 text-center">E</th>
+                            <th className="p-3 text-center">D</th>
+                            <th className="p-3 text-center">{ehFutsal ? "GP" : "PP"}</th>
+                            <th className="p-3 text-center">{ehFutsal ? "GC" : "PC"}</th>
+                            <th className="p-3 text-center">{ehFutsal ? "SG" : "SP"}</th>
                             {ehFutsal && (
                               <>
-                                <th className="p-2.5 text-center">CA</th>
-                                <th className="p-2.5 text-center">CV</th>
+                                <th className="p-3 text-center">CA</th>
+                                <th className="p-3 text-center">CV</th>
                               </>
                             )}
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/80">
+                        <tbody className="divide-y divide-slate-100 bg-white">
                           {dadosGrupo.classificacao.map((item, index) => (
-                            <tr key={item.equipe_id} className="hover:bg-slate-800/40 transition">
-                              <td className="p-2.5 text-center font-black text-slate-400">
+                            <tr key={item.equipe_id} className="hover:bg-slate-50/80 transition">
+                              <td className="p-3 text-center font-black text-slate-500">
                                 {index + 1}º
                               </td>
-                              <td className="p-2.5 font-bold text-slate-100">{item.nome}</td>
-                              <td className="p-2.5 text-center font-black text-amber-400">
+                              <td className="p-3 font-bold text-slate-900">{item.nome}</td>
+                              <td className="p-3 text-center font-black text-[#e05338]">
                                 {item.pontos}
                               </td>
-                              <td className="p-2.5 text-center text-slate-300">{item.jogos}</td>
-                              <td className="p-2.5 text-center text-slate-300">{item.vitorias}</td>
-                              <td className="p-2.5 text-center text-slate-300">{item.empates}</td>
-                              <td className="p-2.5 text-center text-slate-300">{item.derrotas}</td>
-                              <td className="p-2.5 text-center text-slate-300">{item.golsPro}</td>
-                              <td className="p-2.5 text-center text-slate-300">{item.golsContra}</td>
-                              <td className="p-2.5 text-center font-bold text-slate-200">
+                              <td className="p-3 text-center text-slate-600">{item.jogos}</td>
+                              <td className="p-3 text-center text-slate-600">{item.vitorias}</td>
+                              <td className="p-3 text-center text-slate-600">{item.empates}</td>
+                              <td className="p-3 text-center text-slate-600">{item.derrotas}</td>
+                              <td className="p-3 text-center text-slate-600">{item.golsPro}</td>
+                              <td className="p-3 text-center text-slate-600">{item.golsContra}</td>
+                              <td className="p-3 text-center font-bold text-slate-800">
                                 {item.saldoGols}
                               </td>
                               {ehFutsal && (
                                 <>
-                                  <td className="p-2.5 text-center font-bold text-amber-400">
+                                  <td className="p-3 text-center font-bold text-amber-600">
                                     {item.cartoesAmarelos}
                                   </td>
-                                  <td className="p-2.5 text-center font-bold text-red-400">
+                                  <td className="p-3 text-center font-bold text-rose-600">
                                     {item.cartoesVermelhos}
                                   </td>
                                 </>
@@ -955,23 +968,23 @@ export default function ClassificacaoPage() {
                 )}
 
                 {/* 2. FASE ELIMINATÓRIA / DECISÃO */}
-                <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500">
                     Fase Eliminatória / Decisão
                   </h3>
 
                   {/* CASO 1: GRUPO DE 2 EQUIPES (MELHOR DE 3) */}
                   {totalEquipes === 2 && (
                     <div className="space-y-3">
-                      <p className="text-xs text-slate-400">
-                        Formato: <strong className="text-slate-200">Melhor de 3 Jogos</strong>
+                      <p className="text-xs text-slate-500">
+                        Formato: <strong className="text-slate-800">Melhor de 3 Jogos</strong>
                       </p>
 
                       {partidasM3.length === 0 ? (
                         <button
                           disabled={processando}
                           onClick={() => gerandoMelhorDe3Inicio(grupoId)}
-                          className="no-print px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black text-xs transition disabled:opacity-50"
+                          className="no-print px-4 py-2.5 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl font-black text-xs shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-50"
                         >
                           Iniciar Melhor de 3 (Gerar Jogos 1, 2 e 3)
                         </button>
@@ -1012,20 +1025,20 @@ export default function ClassificacaoPage() {
                       )}
 
                       {empatePendenteM3 && (
-                        <p className="no-print text-xs text-red-400 font-semibold">
+                        <p className="no-print text-xs text-rose-600 font-bold">
                           ⚠️ Um dos jogos encerrados terminou empatado sem vencedor definido. Defina o vencedor na súmula antes de declarar o campeão.
                         </p>
                       )}
 
                       {precisaJogo3 && (!j3 || j3.status === "cancelada") && (
-                        <div className="no-print p-3 bg-amber-950/50 border border-amber-600/60 rounded-xl text-amber-200 text-xs flex flex-wrap items-center justify-between gap-3">
+                        <div className="no-print p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-xs flex flex-wrap items-center justify-between gap-3">
                           <span className="font-bold">
                             Série empatada em 1 a 1! O Jogo 3 é necessário para definir o campeão.
                           </span>
                           <button
                             disabled={processando}
                             onClick={() => gerarJogo3MelhorDe3(grupoId)}
-                            className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-lg transition"
+                            className="px-3.5 py-2 bg-[#f06449] hover:bg-[#e05338] text-white font-black rounded-xl transition cursor-pointer"
                           >
                             {j3?.status === "cancelada"
                               ? "Reativar Jogo 3 (Desempate)"
@@ -1040,14 +1053,14 @@ export default function ClassificacaoPage() {
                   {totalEquipes === 3 && (
                     <div className="space-y-3">
                       {!todasGruposEncerradas ? (
-                        <p className="no-print text-xs text-slate-400 italic">
+                        <p className="no-print text-xs text-slate-500 italic">
                           Aguardando o término de todas as partidas da Fase de Grupos para liberar a Final.
                         </p>
                       ) : partidasFinal.length === 0 ? (
                         <button
                           disabled={processando}
                           onClick={() => gerarFinal3Equipes(grupoId)}
-                          className="no-print px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs transition disabled:opacity-50"
+                          className="no-print px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs shadow-emerald-600/25 transition cursor-pointer disabled:opacity-50"
                         >
                           Gerar Grande Final (1º x 2º)
                         </button>
@@ -1064,7 +1077,7 @@ export default function ClassificacaoPage() {
 
                           {vencFinal === "PENDENTE" &&
                             STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
-                              <p className="no-print text-xs text-red-400 font-semibold">
+                              <p className="no-print text-xs text-rose-600 font-bold">
                                 ⚠️ Partida empatada! Defina o vencedor do desempate na súmula.
                               </p>
                             )}
@@ -1077,14 +1090,14 @@ export default function ClassificacaoPage() {
                   {totalEquipes >= 4 && (
                     <div className="space-y-4">
                       {!todasGruposEncerradas ? (
-                        <p className="no-print text-xs text-slate-400 italic">
+                        <p className="no-print text-xs text-slate-500 italic">
                           Aguardando o término de todas as partidas da Fase de Grupos para liberar as Semifinais.
                         </p>
                       ) : partidasSemi.length === 0 ? (
                         <button
                           disabled={processando}
                           onClick={() => gerarSemifinais(grupoId)}
-                          className="no-print px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black text-xs transition disabled:opacity-50"
+                          className="no-print px-4 py-2.5 bg-[#f06449] hover:bg-[#e05338] text-white rounded-xl font-black text-xs shadow-xs shadow-[#f06449]/30 transition cursor-pointer disabled:opacity-50"
                         >
                           Gerar Semifinais (1ºx4º e 2ºx3º)
                         </button>
@@ -1112,7 +1125,7 @@ export default function ClassificacaoPage() {
                           {(vencSemi1 === "PENDENTE" || vencSemi2 === "PENDENTE") &&
                             STATUS_ENCERRADOS.includes(semi1?.status || "") &&
                             STATUS_ENCERRADOS.includes(semi2?.status || "") && (
-                              <p className="no-print text-xs text-red-400 font-semibold">
+                              <p className="no-print text-xs text-rose-600 font-bold">
                                 ⚠️ Uma ou ambas as semifinais terminaram empatadas sem vencedor definido. Defina o vencedor na súmula para liberar as Finais.
                               </p>
                             )}
@@ -1135,14 +1148,14 @@ export default function ClassificacaoPage() {
                                     perdSemi2
                                   )
                                 }
-                                className="no-print px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition"
+                                className="no-print px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-xs shadow-emerald-600/25 transition cursor-pointer"
                               >
                                 Gerar Grande Final e Disputa de 3º Lugar
                               </button>
                             )}
 
                           {(partidasTerceiro.length > 0 || partidasFinal.length > 0) && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                               {partidasTerceiro.length > 0 && (
                                 <div className="space-y-1.5">
                                   <LinhaJogoEliminatorio
@@ -1155,7 +1168,7 @@ export default function ClassificacaoPage() {
                                   />
                                   {vencTerceiro === "PENDENTE" &&
                                     STATUS_ENCERRADOS.includes(partidaTerceiro.status || "") && (
-                                      <p className="no-print text-xs text-red-400 font-semibold">
+                                      <p className="no-print text-xs text-rose-600 font-bold">
                                         ⚠️ Disputa de 3º lugar empatada! Defina o vencedor na súmula.
                                       </p>
                                     )}
@@ -1174,7 +1187,7 @@ export default function ClassificacaoPage() {
                                   />
                                   {vencFinal === "PENDENTE" &&
                                     STATUS_ENCERRADOS.includes(partidaFinal.status || "") && (
-                                      <p className="no-print text-xs text-red-400 font-semibold">
+                                      <p className="no-print text-xs text-rose-600 font-bold">
                                         ⚠️ Final empatada! Defina o vencedor na súmula.
                                       </p>
                                     )}
@@ -1190,8 +1203,8 @@ export default function ClassificacaoPage() {
 
                 {/* 3. PÓDIO OFICIAL DO GRUPO */}
                 {(primeiroColocadoId || segundoColocadoId || terceiroColocadoId) && (
-                  <div className="pt-3 border-t border-slate-800/80 space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                  <div className="pt-3 border-t border-slate-100 space-y-2.5">
+                    <h4 className="text-[11px] font-black uppercase tracking-wider text-slate-700">
                       🏅 Pódio Oficial — {dadosGrupo.nome}
                     </h4>
                     <div
@@ -1199,30 +1212,30 @@ export default function ClassificacaoPage() {
                         totalEquipes >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"
                       } gap-3 text-xs`}
                     >
-                      <div className="print-box p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/50 text-amber-300 font-bold">
+                      <div className="print-box p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-800 font-bold">
                         <span className="block text-[10px] uppercase tracking-wider opacity-80">
                           🥇 1º Lugar (Campeão)
                         </span>
-                        <span className="text-sm font-black text-white mt-0.5 block">
+                        <span className="text-sm font-black text-slate-900 mt-1 block">
                           {primeiroColocadoId ? getNomeEquipe(primeiroColocadoId) : "A definir"}
                         </span>
                       </div>
 
-                      <div className="print-box p-3.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-300 font-bold">
+                      <div className="print-box p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 font-bold">
                         <span className="block text-[10px] uppercase tracking-wider opacity-80">
                           🥈 2º Lugar (Vice)
                         </span>
-                        <span className="text-sm font-black text-slate-100 mt-0.5 block">
+                        <span className="text-sm font-black text-slate-900 mt-1 block">
                           {segundoColocadoId ? getNomeEquipe(segundoColocadoId) : "A definir"}
                         </span>
                       </div>
 
                       {totalEquipes >= 3 && (
-                        <div className="print-box p-3.5 rounded-xl bg-orange-950/25 border border-orange-600/40 text-orange-300 font-bold">
+                        <div className="print-box p-4 rounded-2xl bg-orange-50/80 border border-orange-200 text-orange-800 font-bold">
                           <span className="block text-[10px] uppercase tracking-wider opacity-80">
                             🥉 3º Lugar (Bronze)
                           </span>
-                          <span className="text-sm font-black text-orange-100 mt-0.5 block">
+                          <span className="text-sm font-black text-slate-900 mt-1 block">
                             {terceiroColocadoId ? getNomeEquipe(terceiroColocadoId) : "A definir"}
                           </span>
                         </div>
@@ -1281,19 +1294,19 @@ function LinhaJogoEliminatorio({
 
   return (
     <div
-      className={`print-box p-3.5 rounded-xl border space-y-2 ${
+      className={`print-box p-3.5 rounded-2xl border space-y-2 ${
         dispensado
-          ? "bg-slate-950/40 border-slate-800/60 text-slate-500 line-through"
-          : "bg-slate-950 border-slate-800 text-slate-200"
+          ? "bg-slate-50/50 border-slate-200/60 text-slate-400 line-through"
+          : "bg-slate-50/90 border-slate-200/90 text-slate-800"
       }`}
     >
       <div className="flex justify-between items-center text-[10px] font-bold uppercase">
-        <span className="text-amber-400">{rotulo}</span>
+        <span className="text-[#3b4b5e]">{rotulo}</span>
         <span
-          className={`px-2 py-0.5 rounded-full ${
+          className={`px-2.5 py-0.5 rounded-full border ${
             encerrado
-              ? "bg-emerald-950 text-emerald-400 border border-emerald-800/70"
-              : "bg-slate-900 text-slate-400 border border-slate-800"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : "bg-white text-slate-500 border-slate-200"
           }`}
         >
           {status.replace("_", " ")}
@@ -1301,11 +1314,11 @@ function LinhaJogoEliminatorio({
       </div>
 
       <div className="flex items-center justify-between gap-2 text-xs font-bold">
-        <span className="truncate w-2/5 text-left">{timeA}</span>
-        <span className="bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg font-black text-amber-400 shrink-0">
-          {placarA} x {placarB}
+        <span className="truncate w-2/5 text-left text-slate-900">{timeA}</span>
+        <span className="bg-white border border-slate-200 px-2.5 py-1 rounded-lg font-black text-slate-900 shrink-0">
+          {placarA} <span className="text-[#f06449]">x</span> {placarB}
         </span>
-        <span className="truncate w-2/5 text-right">{timeB}</span>
+        <span className="truncate w-2/5 text-right text-slate-900">{timeB}</span>
       </div>
     </div>
   );
